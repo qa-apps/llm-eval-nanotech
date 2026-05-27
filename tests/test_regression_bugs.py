@@ -90,10 +90,7 @@ class TestChatMarkdownRendering:
         _wait_for_bot_message(page)
         # Get text content of last bot message
         last_bot = page.locator('.chat-message.bot-message .message-content').last
-        raw_text = last_bot.inner_text()
-        assert '###' not in raw_text, (
-            f"Raw markdown header '###' found in bot response: {raw_text[:300]}"
-        )
+        expect(last_bot).not_to_contain_text('###')
 
     def test_bot_response_does_not_contain_raw_bold_asterisks(
         self, page: Page, tools: InteractiveTools
@@ -103,10 +100,7 @@ class TestChatMarkdownRendering:
         _open_chat_and_send(tools, page, 'Explain machine learning in brief')
         _wait_for_bot_message(page)
         last_bot = page.locator('.chat-message.bot-message .message-content').last
-        raw_text = last_bot.inner_text()
-        assert '**' not in raw_text, (
-            f"Raw markdown bold '**' found in bot response: {raw_text[:300]}"
-        )
+        expect(last_bot).not_to_contain_text('**')
 
     def test_bot_response_does_not_contain_raw_single_asterisk_italic(
         self, page: Page, tools: InteractiveTools
@@ -116,11 +110,7 @@ class TestChatMarkdownRendering:
         _open_chat_and_send(tools, page, 'Give a brief overview of deep learning')
         _wait_for_bot_message(page)
         last_bot = page.locator('.chat-message.bot-message .message-content').last
-        raw_text = last_bot.inner_text()
-        # Match pattern *word* — single asterisks surrounding a word
-        assert not re.search(r'\*[^*\n]+\*', raw_text), (
-            f"Raw italic markdown '*text*' found in bot response: {raw_text[:300]}"
-        )
+        expect(last_bot).not_to_contain_text(re.compile(r'\*[^*\n]+\*'))
 
     def test_bot_response_renders_html_list_elements(
         self, page: Page, tools: InteractiveTools
@@ -130,15 +120,7 @@ class TestChatMarkdownRendering:
         _open_chat_and_send(tools, page, 'List 3 benefits of AI automation')
         _wait_for_bot_message(page)
         last_bot = page.locator('.chat-message.bot-message .message-content').last
-        # Either a <ul> or <ol> must exist inside the bot message
-        list_el = last_bot.locator('ul, ol')
-        raw_text = last_bot.inner_text()
-        # Check that raw dash-list syntax is gone, or that HTML list exists
-        has_html_list = list_el.count() > 0
-        has_raw_dash_list = bool(re.search(r'^\s*[-*] ', raw_text, re.MULTILINE))
-        assert has_html_list or not has_raw_dash_list, (
-            f"Raw dash list found but no <ul>/<ol> rendered. Text: {raw_text[:300]}"
-        )
+        expect(last_bot).not_to_contain_text(re.compile(r'^\s*[-*] \w', re.MULTILINE))
 
     def test_bot_response_renders_strong_for_bold(
         self, page: Page, tools: InteractiveTools
@@ -147,11 +129,7 @@ class TestChatMarkdownRendering:
         _open_chat_and_send(tools, page, 'What are key AI risks? Use bold for titles')
         _wait_for_bot_message(page)
         last_bot = page.locator('.chat-message.bot-message .message-content').last
-        raw_text = last_bot.inner_text()
-        # If the response has bold content, verify ** is absent
-        assert '**' not in raw_text, (
-            f"Raw '**' bold markers in response, <strong> not rendered: {raw_text[:300]}"
-        )
+        expect(last_bot).not_to_contain_text('**')
 
 
 # ---------------------------------------------------------------------------

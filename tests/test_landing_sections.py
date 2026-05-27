@@ -2,6 +2,7 @@ import pytest
 from playwright.sync_api import Page, expect
 import re
 from pages.landing_sections import LandingSections
+from utils.site_data import industries, services, tech_keywords
 
 @pytest.fixture(autouse=True)
 def setup(landing: LandingSections):
@@ -39,29 +40,18 @@ class TestAboutSection:
         expect(page.get_by_text(stat, exact=True).first).to_be_visible()
 
 class TestIndustriesSection:
-    INDUSTRIES = [
-        'Financial Services', 'Healthcare', 'Manufacturing',
-        'Retail & E-commerce', 'Logistics & Transport', 'Professional Services'
-    ]
-
     def test_industries_heading_is_visible(self, landing: LandingSections):
         landing.scroll_to_industries()
 
-    @pytest.mark.parametrize("industry", INDUSTRIES)
+    @pytest.mark.parametrize("industry", industries)
     def test_industry_card_visible(self, landing: LandingSections, industry: str):
         landing.expect_industry_card(industry)
 
 class TestServicesSection:
-    SERVICES = [
-        'Agentic Process Automation', 'AI Agent Development',
-        'AI Agent Orchestration & Integration', 'Business Process Analysis',
-        'AI Testing & Quality Assurance', 'AI Strategy Consulting'
-    ]
-
     def test_services_heading_is_visible(self, landing: LandingSections):
         landing.scroll_to_services()
 
-    @pytest.mark.parametrize("service", SERVICES)
+    @pytest.mark.parametrize("service", services)
     def test_service_card_visible(self, landing: LandingSections, service: str):
         landing.expect_service_card(service)
 
@@ -82,12 +72,6 @@ class TestTestimonials:
         landing.click_next_testimonial()
 
 class TestTechnologyTicker:
-    TECH_KEYWORDS = [
-        'Agentic AI', 'Large Language Models', 'Machine Learning',
-        'Computer Vision', 'Big Data', 'Data Analytics',
-        'Natural Language Processing', 'Generative AI', 'Multi-Agent Systems'
-    ]
-
-    @pytest.mark.parametrize("keyword", TECH_KEYWORDS)
+    @pytest.mark.parametrize("keyword", tech_keywords)
     def test_ticker_keyword_present(self, landing: LandingSections, keyword: str):
         landing.expect_ticker_keyword(keyword)

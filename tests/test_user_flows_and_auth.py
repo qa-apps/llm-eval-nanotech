@@ -7,7 +7,7 @@ from utils.random_data import random_company, random_email, random_message, rand
 from utils.site_data import form_service_options
 
 TEST_EMAIL = os.environ.get('NANOTECH_TEST_EMAIL', 'test_email_001007@proton.me')
-TEST_PASSWORD = os.environ.get('NANOTECH_TEST_PASSWORD', 'test_email_001007')
+TEST_PASSWORD = os.environ.get('NANOTECH_TEST_PASSWORD', '')
 
 class TestContactFlow:
     @pytest.fixture(autouse=True)

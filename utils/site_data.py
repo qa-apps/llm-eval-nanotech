@@ -111,6 +111,23 @@ key_content_texts = [
     'Measurable Business Impact'
 ]
 
+industries = [
+    'Financial Services', 'Healthcare', 'Manufacturing',
+    'Retail & E-commerce', 'Logistics & Transport', 'Professional Services'
+]
+
+services = [
+    'Agentic Process Automation', 'AI Agent Development',
+    'AI Agent Orchestration & Integration', 'Business Process Analysis',
+    'AI Testing & Quality Assurance', 'AI Strategy Consulting'
+]
+
+tech_keywords = [
+    'Agentic AI', 'Large Language Models', 'Machine Learning',
+    'Computer Vision', 'Big Data', 'Data Analytics',
+    'Natural Language Processing', 'Generative AI', 'Multi-Agent Systems'
+]
+
 form_service_options = [
     'Process Automation (RPA + AI)',
     'Custom AI Model Development',

@@ -44,5 +44,4 @@ class TestLayout:
 
     def test_theme_switching(self, common: CommonComponents, page: Page):
         common.select_theme('Dark')
-        page.wait_for_timeout(500)
         expect(page.get_by_text('Transforming Business', exact=False).first).to_be_visible()
