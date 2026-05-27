@@ -20,6 +20,8 @@ jobs:
     env:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      NANOTECH_TEST_EMAIL: ${{ secrets.NANOTECH_TEST_EMAIL }}
+      NANOTECH_TEST_PASSWORD: ${{ secrets.NANOTECH_TEST_PASSWORD }}
 
     steps:
       - name: Decide whether this scheduled run matches 10 PM New York time
@@ -46,39 +48,30 @@ jobs:
         if: steps.run_window.outputs.should_run == 'true'
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Python
         if: steps.run_window.outputs.should_run == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-python@v5
         with:
-          node-version: 20
-          cache: npm
+          python-version: '3.11'
+          cache: pip
 
       - name: Install dependencies
         if: steps.run_window.outputs.should_run == 'true'
-        run: npm ci
+        run: pip install -r requirements.txt
 
       - name: Install Playwright browser
         if: steps.run_window.outputs.should_run == 'true'
-        run: npx playwright install --with-deps chromium
+        run: python -m playwright install --with-deps chromium
 
       - name: Run Playwright tests
         if: steps.run_window.outputs.should_run == 'true'
-        run: npm test
+        run: python -m pytest --tb=short
 
-      - name: Upload Playwright report
+      - name: Upload test results (screenshots, videos, traces per failed test)
         if: always() && steps.run_window.outputs.should_run == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-report/
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Playwright test results
-        if: always() && steps.run_window.outputs.should_run == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-test-results
+          name: test-results
           path: test-results/
           if-no-files-found: ignore
           retention-days: 14
