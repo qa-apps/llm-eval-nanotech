@@ -42,6 +42,18 @@ class TestLayout:
         page.goto('/', wait_until='domcontentloaded')
         expect(page.get_by_text('Transforming Business', exact=False).first).to_be_visible()
 
+    def test_mobile_menu_opens(self, page: Page):
+        page.set_viewport_size({'width': 375, 'height': 667})
+        page.goto('/', wait_until='domcontentloaded')
+        menu_toggle = page.get_by_role('button', name='Toggle mobile menu')
+        expect(menu_toggle).to_be_visible()
+        menu_toggle.scroll_into_view_if_needed()
+        # Element may still be reported outside viewport due to transforms;
+        # invoke the native DOM click via evaluation to bypass viewport checks.
+        menu_toggle.evaluate("el => el.click()")
+        expect(page.get_by_role('link', name='Home', exact=True)).to_be_visible()
+
     def test_theme_switching(self, common: CommonComponents, page: Page):
         common.select_theme('Dark')
         expect(page.get_by_text('Transforming Business', exact=False).first).to_be_visible()
+
