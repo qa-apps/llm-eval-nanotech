@@ -14,9 +14,7 @@ import pytest
 pytestmark = pytest.mark.api
 
 
-# ---------------------------------------------------------------------------
 # Static / page-level checks
-# ---------------------------------------------------------------------------
 
 class TestStaticEndpoints:
     """Sanity checks for the public HTML and JS bundle the site depends on."""
@@ -39,9 +37,7 @@ class TestStaticEndpoints:
         assert "/api/contact" in response.text
 
 
-# ---------------------------------------------------------------------------
 # Auth API
-# ---------------------------------------------------------------------------
 
 class TestAuthApi:
     """Unauthenticated and validation paths for the /api/auth/* surface."""
@@ -79,9 +75,7 @@ class TestAuthApi:
         assert response.json() == {'ok': True}
 
 
-# ---------------------------------------------------------------------------
 # Contact form API
-# ---------------------------------------------------------------------------
 
 class TestContactApi:
     """Server-side validation for the public contact form endpoint."""
@@ -104,9 +98,7 @@ class TestContactApi:
         assert 'error' in response.json()
 
 
-# ---------------------------------------------------------------------------
 # Chat API + consent
-# ---------------------------------------------------------------------------
 
 class TestChatApi:
     """Validation contract for the LLM chat surface (no live LLM calls here)."""

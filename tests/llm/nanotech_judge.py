@@ -4,7 +4,9 @@ Uses free open-source models (Qwen, Llama, Mistral) with fallback:
 auto → general → coding → research
 """
 
+import os
 import re
+import time
 from typing import Optional
 import httpx
 from deepeval.models import DeepEvalBaseLLM
@@ -12,6 +14,7 @@ from deepeval.models import DeepEvalBaseLLM
 
 _AGENTS = ['auto', 'general', 'coding', 'research']
 _THINK_RE = re.compile(r'<think>.*?</think>', re.DOTALL)
+_RETRYABLE_STATUSES = {429, 502, 503, 504}
 
 
 class NanotechJudge(DeepEvalBaseLLM):
@@ -21,6 +24,9 @@ class NanotechJudge(DeepEvalBaseLLM):
         self.base_url = base_url
         self.timeout = timeout
         self._last_model: Optional[str] = None
+        self.max_attempts = int(os.getenv('NANOTECH_LLM_MAX_ATTEMPTS', '5'))
+        self.retry_base_delay = float(os.getenv('NANOTECH_LLM_RETRY_BASE_DELAY', '2.0'))
+        self.request_pause = float(os.getenv('NANOTECH_LLM_REQUEST_PAUSE', '0.5'))
 
     def get_model_name(self) -> str:
         return self._last_model or 'nanotech-orchestrator'
@@ -32,19 +38,30 @@ class NanotechJudge(DeepEvalBaseLLM):
         return _THINK_RE.sub('', text).strip()
 
     def _call_chat(self, prompt: str, agent: str) -> Optional[str]:
-        try:
-            with httpx.Client(base_url=self.base_url, timeout=self.timeout) as client:
-                resp = client.post(
-                    '/api/chat',
-                    json={'message': prompt, 'agent': agent, 'attachments': []},
-                )
-                if resp.status_code != 200:
-                    return None
-                data = resp.json()
-                self._last_model = data.get('model', agent)
-                return self._strip_think(data.get('reply', ''))
-        except (httpx.HTTPError, KeyError):
-            return None
+        with httpx.Client(base_url=self.base_url, timeout=self.timeout) as client:
+            for attempt in range(1, self.max_attempts + 1):
+                try:
+                    resp = client.post(
+                        '/api/chat',
+                        json={'message': prompt, 'agent': agent, 'attachments': []},
+                    )
+                    if resp.status_code in _RETRYABLE_STATUSES and attempt < self.max_attempts:
+                        time.sleep(self.retry_base_delay * attempt)
+                        continue
+                    if resp.status_code != 200:
+                        return None
+                    data = resp.json()
+                    reply = self._strip_think(data.get('reply', ''))
+                    if not reply:
+                        return None
+                    self._last_model = data.get('model', agent)
+                    time.sleep(self.request_pause)
+                    return reply
+                except (httpx.HTTPError, KeyError, ValueError):
+                    if attempt == self.max_attempts:
+                        return None
+                    time.sleep(self.retry_base_delay * attempt)
+        return None
 
     def generate(self, prompt: str, **kwargs) -> str:
         for agent in _AGENTS:

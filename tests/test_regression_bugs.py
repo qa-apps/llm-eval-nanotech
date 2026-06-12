@@ -27,9 +27,7 @@ from pages.interactive_tools import InteractiveTools
 from pages.landing_sections import LandingSections
 
 
-# ---------------------------------------------------------------------------
 # Helpers
-# ---------------------------------------------------------------------------
 
 def _open_chat_and_send(tools: InteractiveTools, page: Page, message: str):
     """Open the chat widget, send a message, wait for a bot reply."""
@@ -60,9 +58,7 @@ def _wait_for_bot_message(page: Page, timeout: int = 30_000):
     return page.locator('.chat-message.bot-message').last
 
 
-# ---------------------------------------------------------------------------
 # BUG-001 & BUG-002  –  Markdown rendering in chat bot output
-# ---------------------------------------------------------------------------
 
 class TestChatMarkdownRendering:
     """BUG-001 / BUG-002: Bot responses must render markdown as HTML."""
@@ -132,9 +128,7 @@ class TestChatMarkdownRendering:
         expect(last_bot).not_to_contain_text('**')
 
 
-# ---------------------------------------------------------------------------
 # BUG-003  –  Robot icon visible in bot message bubbles
-# ---------------------------------------------------------------------------
 
 class TestChatBotIconRendering:
     """BUG-003: Robot icon must be present and visible in every bot message."""
@@ -176,9 +170,7 @@ class TestChatBotIconRendering:
         expect(robot_icon).to_be_attached()
 
 
-# ---------------------------------------------------------------------------
 # BUG-004  –  parseMarkdown function present in served JS
-# ---------------------------------------------------------------------------
 
 class TestParseMarkdownDeployed:
     """BUG-004: Verify parseMarkdown is present in the served script.js.

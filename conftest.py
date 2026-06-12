@@ -1,5 +1,7 @@
 import shutil
 import pathlib
+import re
+import httpx
 import pytest
 from playwright.sync_api import Page
 from pages.landing_sections import LandingSections
