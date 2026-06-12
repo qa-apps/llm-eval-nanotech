@@ -3,11 +3,11 @@ from playwright.sync_api import Page, Locator, expect
 def expect_images_loaded(page: Page) -> None:
     images = page.locator('img')
     count = images.count()
-    
+
     for i in range(count):
         img = images.nth(i)
         img.scroll_into_view_if_needed()
-        
+
         result = img.evaluate('''
             (node) => {
                 const image = node;
@@ -17,7 +17,7 @@ def expect_images_loaded(page: Page) -> None:
                 };
             }
         ''')
-        
+
         assert result.get('complete') is True
         assert result.get('naturalWidth', 0) > 0
 
