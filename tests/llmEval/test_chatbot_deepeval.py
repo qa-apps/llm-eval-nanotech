@@ -25,7 +25,8 @@ from deepeval.metrics import (  # noqa: E402
     GEval,
 )
 from deepeval.test_case import SingleTurnParams  # noqa: E402
-from tests.llm.nanotech_judge import NanotechJudge  # noqa: E402
+from utils.nanotech_judge import NanotechJudge  # noqa: E402
+from utils.request_cache import RequestCache  # noqa: E402
 
 
 pytestmark = [
@@ -42,6 +43,7 @@ MAX_CHAT_ATTEMPTS = int(os.getenv('NANOTECH_LLM_MAX_ATTEMPTS', '5'))
 CHAT_RETRY_BASE_DELAY = float(os.getenv('NANOTECH_LLM_RETRY_BASE_DELAY', '2.0'))
 CHAT_REQUEST_PAUSE = float(os.getenv('NANOTECH_LLM_REQUEST_PAUSE', '0.5'))
 RETRYABLE_STATUSES = {429, 502, 503, 504}
+CHAT_CACHE = RequestCache('nanotech_chat_cache')
 
 SITE_CONTEXT = [
     "NanoTech Hub builds custom AI automation solutions for businesses, "
@@ -53,6 +55,14 @@ SITE_CONTEXT = [
 
 def _ask_chat(api_client: httpx.Client, message: str, agent: str = 'General') -> str:
     """Call POST /api/chat and return the assistant's reply text."""
+    cache_payload = {
+        'base_url': str(api_client.base_url),
+        'agent': agent,
+        'message': message,
+    }
+    cached = CHAT_CACHE.get(cache_payload)
+    if isinstance(cached, str) and cached:
+        return cached
     last_error = None
     for attempt in range(1, MAX_CHAT_ATTEMPTS + 1):
         try:
@@ -65,6 +75,7 @@ def _ask_chat(api_client: httpx.Client, message: str, agent: str = 'General') ->
                 continue
             response.raise_for_status()
             reply = response.json()['reply']
+            CHAT_CACHE.set(cache_payload, reply)
             time.sleep(CHAT_REQUEST_PAUSE)
             return reply
         except (httpx.HTTPError, KeyError, ValueError) as exc:

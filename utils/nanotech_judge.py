@@ -10,11 +10,13 @@ import time
 from typing import Optional
 import httpx
 from deepeval.models import DeepEvalBaseLLM
+from utils.request_cache import RequestCache
 
 
 _AGENTS = ['auto', 'general', 'coding', 'research']
 _THINK_RE = re.compile(r'<think>.*?</think>', re.DOTALL)
 _RETRYABLE_STATUSES = {429, 502, 503, 504}
+_JUDGE_CACHE = RequestCache('nanotech_judge_cache')
 
 
 class NanotechJudge(DeepEvalBaseLLM):
@@ -38,6 +40,13 @@ class NanotechJudge(DeepEvalBaseLLM):
         return _THINK_RE.sub('', text).strip()
 
     def _call_chat(self, prompt: str, agent: str) -> Optional[str]:
+        cache_payload = {'base_url': self.base_url, 'agent': agent, 'prompt': prompt}
+        cached = _JUDGE_CACHE.get(cache_payload)
+        if isinstance(cached, dict):
+            reply = cached.get('reply')
+            if reply:
+                self._last_model = cached.get('model', agent)
+                return reply
         with httpx.Client(base_url=self.base_url, timeout=self.timeout) as client:
             for attempt in range(1, self.max_attempts + 1):
                 try:
@@ -55,6 +64,10 @@ class NanotechJudge(DeepEvalBaseLLM):
                     if not reply:
                         return None
                     self._last_model = data.get('model', agent)
+                    _JUDGE_CACHE.set(
+                        cache_payload,
+                        {'reply': reply, 'model': self._last_model},
+                    )
                     time.sleep(self.request_pause)
                     return reply
                 except (httpx.HTTPError, KeyError, ValueError):

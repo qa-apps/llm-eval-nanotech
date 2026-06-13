@@ -13,6 +13,7 @@ class InteractiveTools:
         self.page.get_by_role('button', name='Open chat').click()
         expect(self.page.locator('#chat-window')).to_be_visible()
         self._accept_consent_if_present()
+        self._maximize_chat_if_present()
 
     def _accept_consent_if_present(self):
         overlay = self.page.locator('#chat-consent-overlay')
@@ -22,6 +23,18 @@ class InteractiveTools:
             return
         self.page.locator('#chat-consent-checkbox').check()
         self.page.locator('#chat-consent-agree').click()
+
+    def _maximize_chat_if_present(self):
+        button = self.page.get_by_role('button', name='Maximize chat')
+        try:
+            button.wait_for(state='visible', timeout=2000)
+        except Exception:
+            return
+        button.click()
+        try:
+            button.wait_for(state='hidden', timeout=2000)
+        except Exception:
+            pass
 
     def click_mode(self, mode: Mode):
         self._accept_consent_if_present()

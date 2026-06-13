@@ -1,8 +1,12 @@
+import os
 import shutil
 import pathlib
 import re
 import httpx
 import pytest
+
+os.environ.setdefault('DEEPEVAL', '1')
+os.environ.setdefault('DEEPEVAL_RESULTS_FOLDER', str(pathlib.Path('.deepeval').resolve()))
 from playwright.sync_api import Page
 from pages.landing_sections import LandingSections
 from pages.user_auth import UserAuth
@@ -57,3 +61,12 @@ def set_default_timeouts(page: Page):
     page.set_default_timeout(15_000)
     page.set_default_navigation_timeout(15_000)
     yield
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_sessionfinish(session, exitstatus):
+    try:
+        from deepeval.test_run import global_test_run_manager
+        global_test_run_manager.save_test_run_locally()
+    except Exception:
+        pass
