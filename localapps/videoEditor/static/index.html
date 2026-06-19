@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Logical Segment Editor</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Video Logical Segment Editor</h1>
+    <p>AI splits your main video into logical parts and weaves in clips from the second video between them</p>
+  </header>
+
+  <!-- ── Step 1: Upload ───────────────────────────────────────── -->
+  <section class="step" id="step-upload">
+    <div class="step-header">
+      <span class="step-num">1</span>
+      <h2>Upload Videos</h2>
+    </div>
+
+    <div class="upload-grid">
+      <div class="upload-area" id="drop-v1">
+        <div class="upload-icon">🎬</div>
+        <p>Main Video</p>
+        <small>Will be cut into logical segments</small>
+        <input type="file" id="input-v1" accept="video/*" hidden />
+        <button class="browse-btn" onclick="document.getElementById('input-v1').click()">Browse…</button>
+        <div class="file-info" id="info-v1"></div>
+      </div>
+
+      <div class="upload-area" id="drop-v2">
+        <div class="upload-icon">🎞️</div>
+        <p>Insert Video</p>
+        <small>Clips inserted between main segments</small>
+        <input type="file" id="input-v2" accept="video/*" hidden />
+        <button class="browse-btn" onclick="document.getElementById('input-v2').click()">Browse…</button>
+        <div class="file-info" id="info-v2"></div>
+      </div>
+    </div>
+
+    <div class="detect-options">
+      <label>
+        Detection sensitivity
+        <input type="range" id="threshold-slider" min="0.10" max="0.60" step="0.05" value="0.30" />
+        <span id="threshold-value">0.30</span>
+      </label>
+      <small>Lower → more cuts (sensitive to small changes) · Higher → fewer cuts (major scene shifts only)</small>
+    </div>
+
+    <button class="btn-primary" id="btn-detect" disabled>Detect Logical Segments →</button>
+  </section>
+
+  <!-- ── Step 2: Review + Merge ───────────────────────────────── -->
+  <section class="step" id="step-segments" hidden>
+    <div class="step-header">
+      <span class="step-num">2</span>
+      <h2>Review Segments &amp; Merge</h2>
+    </div>
+
+    <div id="timeline-v1" class="timeline-block"></div>
+    <div id="timeline-v2" class="timeline-block"></div>
+
+    <div class="timeline-block">
+      <div class="timeline-label">Final result preview</div>
+      <div class="timeline-bar preview-bar" id="preview-bar"></div>
+      <p class="total-dur" id="total-dur"></p>
+    </div>
+
+    <button class="btn-primary" id="btn-merge">Create Final Video →</button>
+  </section>
+
+  <!-- ── Step 3: Download ─────────────────────────────────────── -->
+  <section class="step" id="step-result" hidden>
+    <div class="step-header">
+      <span class="step-num">3</span>
+      <h2>Download</h2>
+    </div>
+    <div class="result-box">
+      <div class="result-icon">✅</div>
+      <p>Your video is ready!</p>
+      <a class="btn-primary" id="download-link" href="#" download="merged_video.mp4">Download Video</a>
+    </div>
+  </section>
+</div>
+
+<!-- Progress overlay -->
+<div class="progress-overlay" id="progress-overlay" hidden>
+  <div class="progress-box">
+    <div class="spinner"></div>
+    <p id="progress-text">Processing…</p>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
