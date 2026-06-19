@@ -10,16 +10,17 @@
 <div class="app">
   <header>
     <h1>Video Logical Segment Editor</h1>
-    <p>AI splits your main video into logical parts and weaves in clips from the second video between them</p>
+    <p>Tell the AI what you want — it sets everything up for you</p>
   </header>
 
-  <!-- ── Step 1: Upload ───────────────────────────────────────── -->
+  <!-- ── Step 1: Upload + AI Director ───────────────────────── -->
   <section class="step" id="step-upload">
     <div class="step-header">
       <span class="step-num">1</span>
-      <h2>Upload Videos</h2>
+      <h2>Upload Videos &amp; Describe Your Goal</h2>
     </div>
 
+    <!-- Upload areas -->
     <div class="upload-grid">
       <div class="upload-area" id="drop-v1">
         <div class="upload-icon">🎬</div>
@@ -33,20 +34,49 @@
       <div class="upload-area" id="drop-v2">
         <div class="upload-icon">🎞️</div>
         <p>Insert Video</p>
-        <small>Clips inserted between main segments</small>
+        <small>Clips woven between main segments</small>
         <input type="file" id="input-v2" accept="video/*" hidden />
         <button class="browse-btn" onclick="document.getElementById('input-v2').click()">Browse…</button>
         <div class="file-info" id="info-v2"></div>
       </div>
     </div>
 
+    <!-- AI Director -->
+    <div class="ai-box">
+      <div class="ai-box-header">
+        <span class="ai-icon">✨</span>
+        <span class="ai-label">AI Director <span class="ai-badge">nanotech.icu · free</span></span>
+      </div>
+      <textarea
+        id="goal-input"
+        placeholder="Describe what you want — e.g. "funny travel compilation with quick cuts", "dramatic documentary feel", "joyful wedding highlights""
+        rows="3"
+      ></textarea>
+      <div class="ai-actions">
+        <button class="btn-ai" id="btn-ask-ai" disabled>Ask AI Director</button>
+        <span class="ai-hint">Uses free open-source models (Qwen / Llama / Mistral)</span>
+      </div>
+
+      <!-- AI response card (hidden until response) -->
+      <div class="ai-result" id="ai-result" hidden>
+        <div class="ai-result-row">
+          <span class="mood-chip" id="mood-chip"></span>
+          <span class="ai-model" id="ai-model-label"></span>
+        </div>
+        <p class="ai-brief" id="ai-brief"></p>
+        <div class="ai-params" id="ai-params"></div>
+        <div class="strategy-row" id="strategy-row"></div>
+      </div>
+    </div>
+
+    <!-- Manual controls (always visible, pre-filled by AI) -->
     <div class="detect-options">
       <label>
         Detection sensitivity
         <input type="range" id="threshold-slider" min="0.10" max="0.60" step="0.05" value="0.30" />
         <span id="threshold-value">0.30</span>
       </label>
-      <small>Lower → more cuts (sensitive to small changes) · Higher → fewer cuts (major scene shifts only)</small>
+      <small>Lower → more cuts &nbsp;·&nbsp; Higher → fewer cuts (major scene changes only)</small>
     </div>
 
     <button class="btn-primary" id="btn-detect" disabled>Detect Logical Segments →</button>
@@ -56,7 +86,7 @@
   <section class="step" id="step-segments" hidden>
     <div class="step-header">
       <span class="step-num">2</span>
-      <h2>Review Segments &amp; Merge</h2>
+      <h2>Review Segments &amp; Create Video</h2>
     </div>
 
     <div id="timeline-v1" class="timeline-block"></div>
@@ -66,6 +96,18 @@
       <div class="timeline-label">Final result preview</div>
       <div class="timeline-bar preview-bar" id="preview-bar"></div>
       <p class="total-dur" id="total-dur"></p>
+    </div>
+
+    <!-- Strategy selector -->
+    <div class="strategy-selector">
+      <span class="strategy-label">Merge strategy</span>
+      <div class="strategy-btns" id="strategy-btns">
+        <button class="strat-btn active" data-strat="rapid_interleave" title="M I M I M I … M">Rapid interleave</button>
+        <button class="strat-btn" data-strat="spaced_interleave" title="M M I M M I … M">Spaced interleave</button>
+        <button class="strat-btn" data-strat="bookend" title="I M M … M I">Bookend</button>
+        <button class="strat-btn" data-strat="sandwich" title="M I I … I M">Sandwich</button>
+      </div>
+      <small class="strat-desc" id="strat-desc">M I M I M I … M — insert between every main segment</small>
     </div>
 
     <button class="btn-primary" id="btn-merge">Create Final Video →</button>

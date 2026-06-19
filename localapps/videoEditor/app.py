@@ -10,8 +10,9 @@ from pydantic import BaseModel
 import uvicorn
 
 from video_processor import get_video_info, compute_logical_segments, interleave_and_merge
+from ai_director import get_ai_guidance
 
-app = FastAPI(title="Video Logical Segment Editor", version="1.0.0")
+app = FastAPI(title="Video Logical Segment Editor", version="1.1.0")
 
 BASE_DIR = Path(__file__).parent
 UPLOAD_DIR = BASE_DIR / "uploads"
@@ -21,12 +22,27 @@ WORK_DIR   = BASE_DIR / "work"
 for _d in [UPLOAD_DIR, OUTPUT_DIR, WORK_DIR]:
     _d.mkdir(exist_ok=True)
 
-# In-memory state (sufficient for single-user local app)
 videos: dict = {}   # file_id -> {path, info, filename}
 jobs:   dict = {}   # job_id  -> {status, progress, result_id, error}
 
 
-# ── Upload ──────────────────────────────────────────────────────────────────
+# ── AI Director ───────────────────────────────────────────────────────────────
+
+class GuideRequest(BaseModel):
+    goal: str
+
+
+@app.post("/api/ai-guide")
+async def ai_guide(req: GuideRequest):
+    if not req.goal.strip():
+        raise HTTPException(400, "goal must not be empty")
+
+    loop = asyncio.get_event_loop()
+    guidance = await loop.run_in_executor(None, get_ai_guidance, req.goal.strip())
+    return guidance
+
+
+# ── Upload ────────────────────────────────────────────────────────────────────
 
 @app.post("/api/upload")
 async def upload_video(file: UploadFile = File(...)):
@@ -58,7 +74,7 @@ async def upload_video(file: UploadFile = File(...)):
     }
 
 
-# ── Segment detection ────────────────────────────────────────────────────────
+# ── Segment detection ─────────────────────────────────────────────────────────
 
 class DetectRequest(BaseModel):
     file_id:      str
@@ -86,13 +102,14 @@ async def detect_segments(req: DetectRequest):
     return {"segments": segments, "count": len(segments)}
 
 
-# ── Merge ────────────────────────────────────────────────────────────────────
+# ── Merge ─────────────────────────────────────────────────────────────────────
 
 class MergeRequest(BaseModel):
     video1_id:  str
     video2_id:  str
     segments1:  list
     segments2:  list
+    strategy:   str = "rapid_interleave"
 
 
 @app.post("/api/merge")
@@ -102,6 +119,9 @@ async def merge_videos(req: MergeRequest, background_tasks: BackgroundTasks):
             raise HTTPException(404, f"Video {vid_id} not found")
     if not req.segments1:
         raise HTTPException(400, "segments1 must not be empty")
+
+    valid_strategies = {"rapid_interleave", "spaced_interleave", "bookend", "sandwich"}
+    strategy = req.strategy if req.strategy in valid_strategies else "rapid_interleave"
 
     job_id = str(uuid.uuid4())
     jobs[job_id] = {"status": "queued", "progress": 0, "result_id": None, "error": None}
@@ -113,11 +133,12 @@ async def merge_videos(req: MergeRequest, background_tasks: BackgroundTasks):
         req.segments1,
         videos[req.video2_id]["path"],
         req.segments2,
+        strategy,
     )
     return {"job_id": job_id}
 
 
-async def _run_merge(job_id, v1_path, segs1, v2_path, segs2):
+async def _run_merge(job_id, v1_path, segs1, v2_path, segs2, strategy):
     jobs[job_id].update(status="processing", progress=10)
     result_id = str(uuid.uuid4())
     output_path = str(OUTPUT_DIR / f"{result_id}.mp4")
@@ -128,7 +149,7 @@ async def _run_merge(job_id, v1_path, segs1, v2_path, segs2):
         await loop.run_in_executor(
             None,
             interleave_and_merge,
-            v1_path, segs1, v2_path, segs2, output_path, work_dir,
+            v1_path, segs1, v2_path, segs2, output_path, work_dir, strategy,
         )
         shutil.rmtree(work_dir, ignore_errors=True)
         jobs[job_id].update(status="done", progress=100, result_id=result_id)
@@ -152,7 +173,7 @@ def download_result(result_id: str):
     return FileResponse(str(path), media_type="video/mp4", filename="merged_video.mp4")
 
 
-# ── Static files ─────────────────────────────────────────────────────────────
+# ── Static files ──────────────────────────────────────────────────────────────
 
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 

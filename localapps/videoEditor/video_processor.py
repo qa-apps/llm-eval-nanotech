@@ -141,6 +141,59 @@ def _normalize_segment(src: str, start: float, duration: float, dest: str) -> st
     return dest
 
 
+def _build_order(
+    v1_segs: List[dict],
+    v2_segs: List[dict],
+    strategy: str,
+) -> List[Tuple[str, dict]]:
+    """
+    Returns ordered list of (source, segment) pairs for the chosen strategy.
+    Sources are 'v1' or 'v2' — resolved to actual paths by the caller.
+
+    Strategies
+    ----------
+    rapid_interleave  M I M I M I … M      (insert between every main segment)
+    spaced_interleave M M I M M I … M      (insert every second gap)
+    bookend           I  M M M … M  I      (insert wraps the main sequence)
+    sandwich          M  I I I … I  M      (inserts clustered in the middle)
+    """
+    n1, n2 = len(v1_segs), len(v2_segs)
+    order: List[Tuple[str, dict]] = []
+
+    if strategy == "bookend":
+        if n2 > 0:
+            order.append(("v2", v2_segs[0]))
+        order.extend([("v1", s) for s in v1_segs])
+        if n2 > 1:
+            order.append(("v2", v2_segs[-1]))
+        elif n2 == 1:
+            order.append(("v2", v2_segs[0]))
+
+    elif strategy == "sandwich":
+        if n1 > 0:
+            order.append(("v1", v1_segs[0]))
+        order.extend([("v2", s) for s in v2_segs])
+        if n1 > 1:
+            order.append(("v1", v1_segs[-1]))
+
+    elif strategy == "spaced_interleave":
+        v2_idx = 0
+        for i, seg in enumerate(v1_segs):
+            order.append(("v1", seg))
+            # insert after every even-indexed main segment (0-based: positions 1,3,5…)
+            if (i % 2 == 1) and n2 > 0:
+                order.append(("v2", v2_segs[v2_idx % n2]))
+                v2_idx += 1
+
+    else:  # rapid_interleave (default)
+        for i, seg in enumerate(v1_segs):
+            order.append(("v1", seg))
+            if i < n1 - 1 and n2 > 0:
+                order.append(("v2", v2_segs[i % n2]))
+
+    return order
+
+
 def interleave_and_merge(
     v1_path: str,
     v1_segments: List[dict],
@@ -148,31 +201,27 @@ def interleave_and_merge(
     v2_segments: List[dict],
     output_path: str,
     work_dir: str,
+    strategy: str = "rapid_interleave",
 ) -> str:
     """
-    Interleave v1 and v2 segments:
-      [V1_0, V2_0, V1_1, V2_1, ..., V1_N]
-    Re-encodes all pieces to a common format before concat.
+    Cut, normalize, and merge videos according to *strategy*.
+    All pieces are re-encoded to h264/aac 1280×720 30fps before concat.
     """
     os.makedirs(work_dir, exist_ok=True)
-    normalized: List[str] = []
+    src_map = {"v1": v1_path, "v2": v2_path}
 
-    def _add(src_path: str, seg: dict, label: str, idx: int) -> None:
-        dest = os.path.join(work_dir, f"{label}_{idx:03d}.mp4")
-        _normalize_segment(src_path, seg["start"], seg["duration"], dest)
+    order = _build_order(v1_segments, v2_segments, strategy)
+
+    normalized: List[str] = []
+    for pos, (src_key, seg) in enumerate(order):
+        dest = os.path.join(work_dir, f"piece_{pos:03d}_{src_key}.mp4")
+        _normalize_segment(src_map[src_key], seg["start"], seg["duration"], dest)
         if os.path.exists(dest) and os.path.getsize(dest) > 0:
             normalized.append(dest)
 
-    n1 = len(v1_segments)
-    n2 = len(v2_segments)
+    if not normalized:
+        raise RuntimeError("No segments were produced — check FFmpeg installation.")
 
-    for i, seg in enumerate(v1_segments):
-        _add(v1_path, seg, "v1", i)
-        # Insert v2 between every v1 segment (not after the last)
-        if i < n1 - 1 and n2 > 0:
-            _add(v2_path, v2_segments[i % n2], "v2", i)
-
-    # Build concat list and merge
     concat_file = os.path.join(work_dir, "concat.txt")
     with open(concat_file, "w") as f:
         for p in normalized:
