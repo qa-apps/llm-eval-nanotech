@@ -1,0 +1,11 @@
+{
+  "run_number": "3",
+  "source": "/home/runner/work/PW_nanotech/PW_nanotech/.deepeval/.latest_run_full.json",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "metric_total": 1,
+  "metric_passed": 1,
+  "metric_failed": 0,
+  "run_duration": 0.0
+}
