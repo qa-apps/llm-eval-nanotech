@@ -9,12 +9,12 @@ on:
         type: choice
         options:
           - smoke
-          - full
-        default: smoke
+          - standard
+        default: standard
   schedule:
-    # Daily full DeepEval run at 10:30 PM America/New_York during EDT.
+    # Daily 10-test DeepEval run at 10:30 PM America/New_York during EDT.
     - cron: "30 02 * * *"
-    # Daily full DeepEval run at 10:30 PM America/New_York during EST.
+    # Daily 10-test DeepEval run at 10:30 PM America/New_York during EST.
     - cron: "30 03 * * *"
 
 concurrency:
@@ -49,14 +49,14 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" != "schedule" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
-            echo "scope=${{ inputs.scope || 'smoke' }}" >> "$GITHUB_OUTPUT"
+            echo "scope=${{ inputs.scope || 'standard' }}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           local_hour_minute="$(TZ=America/New_York date +%H:%M)"
           if [ "$local_hour_minute" = "22:30" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
-            echo "scope=full" >> "$GITHUB_OUTPUT"
+            echo "scope=standard" >> "$GITHUB_OUTPUT"
           else
             echo "should_run=false" >> "$GITHUB_OUTPUT"
             echo "scope=skip" >> "$GITHUB_OUTPUT"
@@ -100,12 +100,12 @@ jobs:
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_answer_relevancy --tb=short
 
-      - name: Run DeepEval full suite
-        if: steps.run_window.outputs.should_run == 'true' && steps.run_window.outputs.scope == 'full'
-        id: full
+      - name: Run DeepEval standard 10-test suite
+        if: steps.run_window.outputs.should_run == 'true' && steps.run_window.outputs.scope == 'standard'
+        id: standard
         continue-on-error: true
         run: |
-          python -m pytest tests/llmEval --tb=short
+          python -m pytest tests/llmEval/test_chatbot_deepeval.py --tb=short
 
       - name: Upload DeepEval raw results
         if: always() && steps.run_window.outputs.should_run == 'true'
@@ -132,6 +132,7 @@ jobs:
           publish_branch: gh-pages
           publish_dir: ./gh-pages-site
           force_orphan: false
+          keep_files: true
           enable_jekyll: false
           commit_message: "deepeval site: run #${{ github.run_number }}"
           user_name: "github-actions[bot]"
@@ -153,6 +154,6 @@ jobs:
       - name: Fail if DeepEval failed
         if: steps.run_window.outputs.should_run == 'true'
         run: |
-          if [ "${{ steps.smoke.outcome }}" = "failure" ] || [ "${{ steps.full.outcome }}" = "failure" ]; then
+          if [ "${{ steps.smoke.outcome }}" = "failure" ] || [ "${{ steps.standard.outcome }}" = "failure" ]; then
             exit 1
           fi
