@@ -14,3 +14,19 @@ __pycache__/
 .deepeval/
 
 tests/llmEval/report.html
+
+# Local graphify cache (not CI source)
+graphify-out/
+screenshots/
+.playwright-mcp/
+preview-*.png
+hetzner-*.png
+.codex/
+AGENTS.md
+.idea/
+*.log
+temp_*.md
+temp_*.txt
+screenshot.png
+.claude/settings.local.json
+.claude/launch.json
