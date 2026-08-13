@@ -65,7 +65,7 @@ jobs:
 
       - name: Run Playwright tests
         if: steps.run_window.outputs.should_run == 'true'
-        run: python -m pytest --tb=short
+        run: python -m pytest tests --tb=short
 
       - name: Upload test results (screenshots, videos, traces per failed test)
         if: always() && steps.run_window.outputs.should_run == 'true'

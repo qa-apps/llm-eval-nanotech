@@ -1,0 +1,158 @@
+name: DeepEval Nightly
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Run scope"
+        required: false
+        type: choice
+        options:
+          - smoke
+          - full
+        default: smoke
+  schedule:
+    # Daily full DeepEval run at 10:30 PM America/New_York during EDT.
+    - cron: "30 02 * * *"
+    # Daily full DeepEval run at 10:30 PM America/New_York during EST.
+    - cron: "30 03 * * *"
+
+concurrency:
+  group: deepeval-nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deepeval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_DEEPEVAL_CHANNEL_ID: ${{ secrets.SLACK_DEEPEVAL_CHANNEL_ID }}
+      NANOTECH_TEST_EMAIL: ${{ secrets.NANOTECH_TEST_EMAIL }}
+      NANOTECH_TEST_PASSWORD: ${{ secrets.NANOTECH_TEST_PASSWORD }}
+      RUN_LLM_EVALS: "1"
+      DEEPEVAL_TELEMETRY_OPT_OUT: "YES"
+      NANOTECH_LLM_MAX_ATTEMPTS: "5"
+      NANOTECH_LLM_RETRY_BASE_DELAY: "2.0"
+      NANOTECH_LLM_REQUEST_PAUSE: "0.5"
+
+    steps:
+      - name: Decide whether this scheduled run matches 10:30 PM New York time
+        id: run_window
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "scope=${{ inputs.scope || 'smoke' }}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          local_hour_minute="$(TZ=America/New_York date +%H:%M)"
+          if [ "$local_hour_minute" = "22:30" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "scope=full" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "scope=skip" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip duplicate schedule slot
+        if: steps.run_window.outputs.should_run != 'true'
+        run: echo "Skipping this cron slot because it is not 10:30 PM in America/New_York."
+
+      - name: Checkout repository
+        if: steps.run_window.outputs.should_run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Checkout existing gh-pages site
+        if: steps.run_window.outputs.should_run == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-existing
+        continue-on-error: true
+
+      - name: Setup Python
+        if: steps.run_window.outputs.should_run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        if: steps.run_window.outputs.should_run == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browser
+        if: steps.run_window.outputs.should_run == 'true'
+        run: python -m playwright install --with-deps chromium
+
+      - name: Run DeepEval smoke
+        if: steps.run_window.outputs.should_run == 'true' && steps.run_window.outputs.scope == 'smoke'
+        id: smoke
+        continue-on-error: true
+        run: |
+          python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_answer_relevancy --tb=short
+
+      - name: Run DeepEval full suite
+        if: steps.run_window.outputs.should_run == 'true' && steps.run_window.outputs.scope == 'full'
+        id: full
+        continue-on-error: true
+        run: |
+          python -m pytest tests/llmEval --tb=short
+
+      - name: Upload DeepEval raw results
+        if: always() && steps.run_window.outputs.should_run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepeval-results-${{ github.run_number }}
+          path: .deepeval/
+          if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: true
+
+      - name: Build DeepEval Pages UI
+        if: always() && steps.run_window.outputs.should_run == 'true'
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: python scripts/build_deepeval_site.py
+
+      - name: Publish DeepEval Pages UI
+        if: always() && steps.run_window.outputs.should_run == 'true'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./gh-pages-site
+          force_orphan: false
+          enable_jekyll: false
+          commit_message: "deepeval site: run #${{ github.run_number }}"
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+
+      - name: Notify Slack
+        if: always() && steps.run_window.outputs.should_run == 'true'
+        env:
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          OWNER_LC=$(echo "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')
+          DEEPEVAL_DASHBOARD_URL="https://${OWNER_LC}.github.io/${REPO_NAME}/deepeval/runs/${{ github.run_number }}/"
+          python .github/scripts/notify_deepeval_slack.py \
+            --channel "$SLACK_DEEPEVAL_CHANNEL_ID" \
+            --results-dir .deepeval \
+            --dashboard-url "$DEEPEVAL_DASHBOARD_URL"
+
+      - name: Fail if DeepEval failed
+        if: steps.run_window.outputs.should_run == 'true'
+        run: |
+          if [ "${{ steps.smoke.outcome }}" = "failure" ] || [ "${{ steps.full.outcome }}" = "failure" ]; then
+            exit 1
+          fi
