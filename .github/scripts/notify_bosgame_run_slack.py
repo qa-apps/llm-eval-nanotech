@@ -12,6 +12,12 @@ bosgame tonight?". It is called on EVERY hourly schedule tick:
   * after tests   -> post a pass/fail summary and the full, collapsed list of
                      every test as a threaded reply.
 
+Channel resolution is automatic and needs no manual setup: if no channel id is
+given (secret SLACK_NIGHTLY_BOSGAME_CHANNEL_ID unset), the bot finds the channel
+named `--channel-name` (default "nightly-bosgame-run"), creating and joining it
+on first run. Requires the bot to have channels:read + channels:manage (or
+channels:join + chat:write.public) — if it lacks them, the step no-ops cleanly.
+
 Events:
   --event down     bosgame not reachable / model missing
   --event up       bosgame reachable, run starting
@@ -21,8 +27,6 @@ Events:
 Env:
   SLACK_BOT_TOKEN   Slack bot token (xoxb-...). If unset, the script no-ops
                     with exit 0 so it never fails the CI job.
-
-The bot must be a member of the target channel (invite it once).
 """
 from __future__ import annotations
 
@@ -30,13 +34,14 @@ import argparse
 import json
 import os
 import sys
+import urllib.parse
 import urllib.request
 import urllib.error
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-SLACK_POST_URL = "https://slack.com/api/chat.postMessage"
+SLACK_API = "https://slack.com/api/"
 # Slack hard limits: 3000 chars per text object, 50 blocks per message.
 _CHUNK_CHARS = 2800
 _MAX_LINES_PER_REPLY = 60
@@ -49,15 +54,9 @@ def _now(tz: str) -> str:
         return datetime.now().strftime("%H:%M")
 
 
-def _post(channel: str, token: str, text: str, blocks=None, thread_ts=None) -> str | None:
-    """Post one message; return its ts (for threading) or None on failure."""
-    payload = {"channel": channel, "text": text, "unfurl_links": False}
-    if blocks is not None:
-        payload["blocks"] = blocks
-    if thread_ts:
-        payload["thread_ts"] = thread_ts
+def _api_post(method: str, token: str, payload: dict) -> dict:
     req = urllib.request.Request(
-        SLACK_POST_URL,
+        SLACK_API + method,
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Authorization": f"Bearer {token}",
@@ -66,12 +65,80 @@ def _post(channel: str, token: str, text: str, blocks=None, thread_ts=None) -> s
     )
     try:
         with urllib.request.urlopen(req, timeout=20) as resp:
-            body = json.loads(resp.read().decode("utf-8"))
+            return json.loads(resp.read().decode("utf-8"))
     except urllib.error.URLError as exc:
-        print(f"[notify_bosgame] Slack request failed: {exc}", file=sys.stderr)
+        print(f"[notify_bosgame] Slack POST {method} failed: {exc}", file=sys.stderr)
+        return {"ok": False, "error": str(exc)}
+
+
+def _api_get(method: str, token: str, params: dict) -> dict:
+    url = SLACK_API + method + "?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.URLError as exc:
+        print(f"[notify_bosgame] Slack GET {method} failed: {exc}", file=sys.stderr)
+        return {"ok": False, "error": str(exc)}
+
+
+def resolve_channel(token: str, channel_id: str, channel_name: str) -> str | None:
+    """Return a usable channel id: the given id, else find-or-create by name."""
+    channel_id = (channel_id or "").strip()
+    if channel_id:
+        return channel_id
+    name = (channel_name or "").strip().lstrip("#")
+    if not name:
         return None
+
+    # Find an existing public (or private) channel by name.
+    for types in ("public_channel", "private_channel"):
+        cursor = ""
+        for _ in range(20):  # cap pagination
+            params = {"types": types, "limit": 1000, "exclude_archived": "true"}
+            if cursor:
+                params["cursor"] = cursor
+            r = _api_get("conversations.list", token, params)
+            if not r.get("ok"):
+                break
+            for c in r.get("channels", []) or []:
+                if c.get("name") == name:
+                    _api_post("conversations.join", token, {"channel": c["id"]})  # best effort
+                    return c["id"]
+            cursor = (r.get("response_metadata") or {}).get("next_cursor") or ""
+            if not cursor:
+                break
+
+    # Not found — create it (bot becomes a member automatically).
+    r = _api_post("conversations.create", token, {"name": name, "is_private": False})
+    if r.get("ok"):
+        cid = r["channel"]["id"]
+        _api_post("conversations.setPurpose", token, {
+            "channel": cid,
+            "purpose": "Nightly bosgame LLM-eval heartbeat: hourly up/down + per-run test results.",
+        })
+        return cid
+    if r.get("error") == "name_taken":
+        # Race or private-only visibility: re-list public channels once more.
+        r2 = _api_get("conversations.list", token,
+                      {"types": "public_channel", "limit": 1000, "exclude_archived": "true"})
+        for c in r2.get("channels", []) or []:
+            if c.get("name") == name:
+                return c["id"]
+    print(f"[notify_bosgame] could not resolve/create channel '{name}': "
+          f"{r.get('error')}", file=sys.stderr)
+    return None
+
+
+def _post(channel: str, token: str, text: str, blocks=None, thread_ts=None) -> str | None:
+    payload = {"channel": channel, "text": text, "unfurl_links": False}
+    if blocks is not None:
+        payload["blocks"] = blocks
+    if thread_ts:
+        payload["thread_ts"] = thread_ts
+    body = _api_post("chat.postMessage", token, payload)
     if not body.get("ok"):
-        print(f"[notify_bosgame] Slack API error: {body.get('error')}", file=sys.stderr)
+        print(f"[notify_bosgame] chat.postMessage error: {body.get('error')}", file=sys.stderr)
         return None
     return body.get("ts")
 
@@ -87,9 +154,7 @@ def _parse_playwright(path: Path) -> list[tuple[str, bool]]:
 
     def walk(suite):
         for spec in suite.get("specs", []) or []:
-            title = spec.get("title") or "test"
-            ok = bool(spec.get("ok", False))
-            out.append((title, ok))
+            out.append((spec.get("title") or "test", bool(spec.get("ok", False))))
         for child in suite.get("suites", []) or []:
             walk(child)
 
@@ -151,8 +216,6 @@ def _collect(fmt: str, results: str | None) -> list[tuple[str, bool]]:
     return []
 
 
-# ─── Message builders ───────────────────────────────────────────────────────
-
 def _button_blocks(text: str, run_url: str | None) -> list[dict]:
     section = {"type": "section", "text": {"type": "mrkdwn", "text": text}}
     if run_url:
@@ -165,7 +228,6 @@ def _button_blocks(text: str, run_url: str | None) -> list[dict]:
 
 
 def _detail_replies(cases: list[tuple[str, bool]]) -> list[str]:
-    """Chunk the full test list into thread-reply-sized code blocks."""
     lines = [f"{'✅' if ok else '❌'} {name}" for name, ok in cases]
     replies: list[str] = []
     buf: list[str] = []
@@ -183,7 +245,8 @@ def _detail_replies(cases: list[tuple[str, bool]]) -> list[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--channel", required=True)
+    ap.add_argument("--channel", default="")
+    ap.add_argument("--channel-name", default="nightly-bosgame-run")
     ap.add_argument("--suite", required=True)
     ap.add_argument("--event", required=True, choices=["down", "up", "skip", "result"])
     ap.add_argument("--tz", default="America/New_York")
@@ -197,26 +260,28 @@ def main() -> int:
     if not token:
         print("[notify_bosgame] SLACK_BOT_TOKEN unset — no-op.")
         return 0
-    if not args.channel:
-        print("[notify_bosgame] no channel id — no-op.")
+
+    channel = resolve_channel(token, args.channel, args.channel_name)
+    if not channel:
+        print("[notify_bosgame] no channel resolved — no-op.")
         return 0
 
     now = _now(args.tz)
     suite = args.suite
 
     if args.event == "down":
-        _post(args.channel, token,
+        _post(channel, token,
               f":red_circle: *{suite}* — bosgame unavailable at {now} ({args.tz}). "
               f"Tests not started; will retry on the next hourly check.")
         return 0
 
     if args.event == "skip":
-        _post(args.channel, token,
+        _post(channel, token,
               f":fast_forward: *{suite}* — already completed for today at {now}. Skipping.")
         return 0
 
     if args.event == "up":
-        _post(args.channel, token,
+        _post(channel, token,
               f":large_green_circle: *{suite}* — bosgame available at {now} ({args.tz}). "
               f"Warming gpt-oss and starting the suite…")
         return 0
@@ -225,7 +290,7 @@ def main() -> int:
     if args.format == "none":
         msg = (f":checkered_flag: *{suite}* — evaluation finished at {now}. "
                f"See the suite's own Slack channel for per-metric detail.")
-        _post(args.channel, token, msg, blocks=_button_blocks(msg, args.run_url))
+        _post(channel, token, msg, blocks=_button_blocks(msg, args.run_url))
         return 0
 
     cases = _collect(args.format, args.results)
@@ -239,10 +304,10 @@ def main() -> int:
         + (f", {failed} failed" if failed else "")
         + ("  ·  no parseable results" if total == 0 else "")
     )
-    ts = _post(args.channel, token, headline, blocks=_button_blocks(headline, args.run_url))
+    ts = _post(channel, token, headline, blocks=_button_blocks(headline, args.run_url))
     if ts and cases:
         for chunk in _detail_replies(cases):
-            _post(args.channel, token, chunk, thread_ts=ts)
+            _post(channel, token, chunk, thread_ts=ts)
     return 0
 
 
