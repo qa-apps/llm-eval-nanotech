@@ -9,13 +9,11 @@ on:
         type: choice
         options:
           - smoke
-          - full
-        default: smoke
+          - standard
+        default: standard
   schedule:
-    # Daily full DeepEval run at 10:30 PM America/New_York during EDT.
-    - cron: "30 02 * * *"
-    # Daily full DeepEval run at 10:30 PM America/New_York during EST.
-    - cron: "30 03 * * *"
+    # Check hourly; run once per New York day when bosgame is available.
+    - cron: "30 * * * *"
 
 concurrency:
   group: deepeval-nightly-${{ github.ref }}
@@ -26,8 +24,8 @@ permissions:
 
 jobs:
   deepeval:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+    runs-on: [self-hosted, Linux, X64, bosgame]
+    timeout-minutes: 180
     env:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -38,40 +36,79 @@ jobs:
       NANOTECH_TEST_PASSWORD: ${{ secrets.NANOTECH_TEST_PASSWORD }}
       RUN_LLM_EVALS: "1"
       DEEPEVAL_TELEMETRY_OPT_OUT: "YES"
-      NANOTECH_LLM_MAX_ATTEMPTS: "5"
+      NANOTECH_LLM_MAX_ATTEMPTS: "3"
       NANOTECH_LLM_RETRY_BASE_DELAY: "2.0"
       NANOTECH_LLM_REQUEST_PAUSE: "0.5"
+      OLLAMA_BASE_URL: http://127.0.0.1:11434
+      LOCAL_LLM_BASE_URL: http://127.0.0.1:11434/v1
+      LOCAL_LLM_MODEL: gpt-oss:120b
+      LOCAL_LLM_API_KEY: ollama
+      LOCAL_LLM_TIMEOUT_SEC: "180"
 
     steps:
-      - name: Decide whether this scheduled run matches 10:30 PM New York time
-        id: run_window
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" != "schedule" ]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-            echo "scope=${{ inputs.scope || 'smoke' }}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          local_hour_minute="$(TZ=America/New_York date +%H:%M)"
-          if [ "$local_hour_minute" = "22:30" ]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-            echo "scope=full" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-            echo "scope=skip" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Skip duplicate schedule slot
-        if: steps.run_window.outputs.should_run != 'true'
-        run: echo "Skipping this cron slot because it is not 10:30 PM in America/New_York."
-
       - name: Checkout repository
-        if: steps.run_window.outputs.should_run == 'true'
         uses: actions/checkout@v4
 
+      - name: Resolve daily evaluation date
+        id: eval_day
+        shell: bash
+        run: |
+          now_minutes=$((10#$(TZ=America/New_York date +%H) * 60 + 10#$(TZ=America/New_York date +%M)))
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$now_minutes" -lt 1350 ]; then
+            eval_day=$(TZ=America/New_York date -d yesterday +%F)
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            eval_day=$(TZ=America/New_York date +%F)
+          else
+            eval_day="manual-${{ github.run_id }}"
+          fi
+          echo "date=$eval_day" >> "$GITHUB_OUTPUT"
+          echo "scope=${{ inputs.scope || 'standard' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore daily completion marker
+        id: daily_marker
+        uses: actions/cache/restore@v4
+        with:
+          path: .ci-markers/deepeval.done
+          key: bosgame-deepeval-${{ steps.eval_day.outputs.date }}
+
+      - name: Check local GPT-OSS availability
+        id: local_llm
+        if: steps.daily_marker.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          if models=$(curl --connect-timeout 5 --max-time 15 --fail --silent --show-error "$OLLAMA_BASE_URL/v1/models") && \
+             python3 -c 'import json,sys; wanted=sys.argv[1]; data=json.load(sys.stdin); raise SystemExit(0 if any(m.get("id") == wanted for m in data.get("data", [])) else 1)' "$LOCAL_LLM_MODEL" <<<"$models"; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Local model unavailable; the next hourly schedule will retry."
+          fi
+
+      - name: Nightly Bosgame — report unavailable
+        if: steps.daily_marker.outputs.cache-hit != 'true' && steps.local_llm.outputs.run != 'true'
+        run: |
+          python3 .github/scripts/notify_bosgame_run_slack.py \
+            --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
+            --suite "DeepEval Nightly" --event down
+
+      - name: Nightly Bosgame — report available
+        if: steps.local_llm.outputs.run == 'true'
+        run: |
+          python3 .github/scripts/notify_bosgame_run_slack.py \
+            --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
+            --suite "DeepEval Nightly" --event up
+
+      - name: Warm up local model (up to 2 min)
+        if: steps.local_llm.outputs.run == 'true'
+        shell: bash
+        run: |
+          echo "Warming $LOCAL_LLM_MODEL (cold load ~30s; budget 150s)…"
+          curl -s --max-time 150 "$OLLAMA_BASE_URL/api/generate" \
+            -d "{\"model\":\"$LOCAL_LLM_MODEL\",\"prompt\":\"ok\",\"stream\":false,\"keep_alive\":-1,\"options\":{\"num_predict\":1}}" \
+            >/dev/null || echo "warm-up request timed out (continuing anyway)"
+
       - name: Checkout existing gh-pages site
-        if: steps.run_window.outputs.should_run == 'true'
+        if: steps.local_llm.outputs.run == 'true'
         uses: actions/checkout@v4
         with:
           ref: gh-pages
@@ -79,36 +116,36 @@ jobs:
         continue-on-error: true
 
       - name: Setup Python
-        if: steps.run_window.outputs.should_run == 'true'
+        if: steps.local_llm.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
 
       - name: Install dependencies
-        if: steps.run_window.outputs.should_run == 'true'
+        if: steps.local_llm.outputs.run == 'true'
         run: pip install -r requirements.txt
 
       - name: Install Playwright browser
-        if: steps.run_window.outputs.should_run == 'true'
+        if: steps.local_llm.outputs.run == 'true'
         run: python -m playwright install --with-deps chromium
 
       - name: Run DeepEval smoke
-        if: steps.run_window.outputs.should_run == 'true' && steps.run_window.outputs.scope == 'smoke'
+        if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'smoke'
         id: smoke
         continue-on-error: true
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_answer_relevancy --tb=short
 
-      - name: Run DeepEval full suite
-        if: steps.run_window.outputs.should_run == 'true' && steps.run_window.outputs.scope == 'full'
-        id: full
+      - name: Run DeepEval standard 10-test suite
+        if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
+        id: standard
         continue-on-error: true
         run: |
-          python -m pytest tests/llmEval --tb=short
+          python -m pytest tests/llmEval/test_chatbot_deepeval.py --tb=short
 
       - name: Upload DeepEval raw results
-        if: always() && steps.run_window.outputs.should_run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: deepeval-results-${{ github.run_number }}
@@ -118,27 +155,28 @@ jobs:
           include-hidden-files: true
 
       - name: Build DeepEval Pages UI
-        if: always() && steps.run_window.outputs.should_run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true'
         env:
           RUN_NUMBER: ${{ github.run_number }}
           RUN_URL: ${{ env.RUN_URL }}
         run: python scripts/build_deepeval_site.py
 
       - name: Publish DeepEval Pages UI
-        if: always() && steps.run_window.outputs.should_run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./gh-pages-site
           force_orphan: false
+          keep_files: true
           enable_jekyll: false
           commit_message: "deepeval site: run #${{ github.run_number }}"
           user_name: "github-actions[bot]"
           user_email: "github-actions[bot]@users.noreply.github.com"
 
       - name: Notify Slack
-        if: always() && steps.run_window.outputs.should_run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true'
         env:
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
@@ -150,9 +188,31 @@ jobs:
             --results-dir .deepeval \
             --dashboard-url "$DEEPEVAL_DASHBOARD_URL"
 
-      - name: Fail if DeepEval failed
-        if: steps.run_window.outputs.should_run == 'true'
+      - name: Nightly Bosgame — post results
+        if: always() && steps.local_llm.outputs.run == 'true'
         run: |
-          if [ "${{ steps.smoke.outcome }}" = "failure" ] || [ "${{ steps.full.outcome }}" = "failure" ]; then
+          python3 .github/scripts/notify_bosgame_run_slack.py \
+            --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
+            --suite "DeepEval Nightly" --event result \
+            --format deepeval --results .deepeval
+
+      - name: Save daily completion marker
+        if: always() && steps.local_llm.outputs.run == 'true' && github.event_name == 'schedule'
+        shell: bash
+        run: |
+          mkdir -p .ci-markers
+          date -u +%FT%TZ > .ci-markers/deepeval.done
+
+      - name: Cache daily completion marker
+        if: always() && steps.local_llm.outputs.run == 'true' && github.event_name == 'schedule'
+        uses: actions/cache/save@v4
+        with:
+          path: .ci-markers/deepeval.done
+          key: bosgame-deepeval-${{ steps.eval_day.outputs.date }}
+
+      - name: Fail if DeepEval failed
+        if: steps.local_llm.outputs.run == 'true'
+        run: |
+          if [ "${{ steps.smoke.outcome }}" = "failure" ] || [ "${{ steps.standard.outcome }}" = "failure" ]; then
             exit 1
           fi
