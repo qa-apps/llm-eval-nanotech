@@ -30,3 +30,6 @@ temp_*.txt
 screenshot.png
 .claude/settings.local.json
 .claude/launch.json
+
+# CI daily-completion markers (written on the runner, cached via actions/cache)
+.ci-markers/
