@@ -50,6 +50,7 @@ def _send_prompt_and_get_reply(page: Page, tools: InteractiveTools, prompt: str)
         'http 503',
         'http 504',
         'all providers failed',
+        'failed to fetch',
         'llm unavailable',
     }
     for attempt in range(1, CHAT_MAX_ATTEMPTS + 1):
