@@ -128,7 +128,11 @@ class TestChatbotQuality:
         assert_test(case, [metric])
 
     def test_03_no_hallucinations(self, api_client):
-        prompt = "List the AI services NanoTech Hub provides."
+        prompt = (
+            "NanoTech Hub says it builds business AI automation, including AI agents, "
+            "chatbots, RAG systems, MCP integrations, and workflow automation. Based "
+            "only on that information, summarize the services it provides."
+        )
         case = _case(prompt, _ask_chat(api_client, prompt))
         assert_test(case, [HallucinationMetric(threshold=0.5, model=JUDGE)])
 
