@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import app.free_model_pool as pool_module
 from app.free_model_pool import FreeModelPool, is_free_only_model, load_models
 
 
@@ -105,6 +106,37 @@ def test_call_model_rejects_paid_route_without_network(monkeypatch):
 
     assert reply is None
     assert error["code"] == "paid_model_disabled"
+
+
+def test_groq_request_stays_below_free_tier_output_limit(monkeypatch):
+    monkeypatch.setenv("FREE_ONLY_MODE", "1")
+    monkeypatch.setenv("GROQ_API_KEY", "test")
+    model = _model("openai/gpt-oss-20b", "groq")
+    pool = FreeModelPool([model])
+    captured = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"choices":[{"message":{"content":"ok"}}]}'
+
+    def fake_urlopen(request, timeout):
+        captured["payload"] = json.loads(request.data)
+        captured["timeout"] = timeout
+        return FakeResponse()
+
+    monkeypatch.setattr(pool_module, "urlopen", fake_urlopen)
+
+    reply, error = pool.call_model(model, "system", "hello", max_tokens=2048)
+
+    assert error is None
+    assert reply == "ok"
+    assert captured["payload"]["max_tokens"] == 900
 
 
 def test_shipped_registry_is_large_and_strictly_free(monkeypatch):
