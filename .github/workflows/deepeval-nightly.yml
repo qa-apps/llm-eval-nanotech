@@ -141,7 +141,7 @@ jobs:
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_chat_returns_a_meaningful_response --tb=short
 
-      - name: Run DeepEval standard 7-test suite sequentially
+      - name: Run DeepEval standard 6-test suite sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
         id: standard
         continue-on-error: true

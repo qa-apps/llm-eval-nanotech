@@ -125,7 +125,7 @@ class TestChatMarkdownRendering:
         _open_chat_and_send(tools, page, 'What are key AI risks? Use bold for titles')
         _wait_for_bot_message(page)
         last_bot = page.locator('.chat-message.bot-message .message-content').last
-        expect(last_bot).not_to_contain_text('**')
+        expect(last_bot.locator('strong').first).to_be_visible()
 
 
 # BUG-003  –  Robot icon visible in bot message bubbles
