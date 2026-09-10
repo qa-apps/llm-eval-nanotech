@@ -1,0 +1,14 @@
+[Unit]
+Description=NanoTech free-model pool curator
+After=network-online.target ollama-netcup-relay.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/nanotech
+EnvironmentFile=/etc/nanotech-chat.env
+ExecStart=/usr/bin/python3 /var/www/nanotech/model_curator.py
+ExecStartPost=+/usr/bin/systemctl try-restart nanotech-chat.service
+Nice=10

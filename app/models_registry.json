@@ -1,0 +1,856 @@
+{
+  "updated_at": "2026-09-10T04:34:06+00:00",
+  "models": [
+    {
+      "id": "nex-agi/nex-n2.5-mini:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "nex-n2.5-mini:free",
+      "tier": "S",
+      "created": 1789014565,
+      "last_verified": "2026-09-10T04:29:25+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nex-agi/nex-n2.5-pro:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "nex-n2.5-pro:free",
+      "tier": "S",
+      "created": 1789014569,
+      "last_verified": "2026-09-10T04:29:29+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nvidia/nemotron-3.5-lightning:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "nemotron-3.5-lightning:free",
+      "tier": "S",
+      "reasoning": true,
+      "created": 1789014574,
+      "last_verified": "2026-09-10T04:29:34+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "poolside/laguna-s-2.1:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "laguna-s-2.1:free",
+      "tier": "S",
+      "created": 1789014576,
+      "last_verified": "2026-09-10T04:29:36+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "nemotron-3-ultra-550b-a55b:free",
+      "tier": "S",
+      "reasoning": true,
+      "created": 1789014582,
+      "last_verified": "2026-09-10T04:29:42+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "google/gemma-4-26b-a4b-it:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "gemma-4-26b-a4b-it:free",
+      "tier": "S",
+      "created": 1789014583,
+      "last_verified": "2026-09-10T04:29:43+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "google/gemma-4-31b-it:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "gemma-4-31b-it:free",
+      "tier": "S",
+      "created": 1789014584,
+      "last_verified": "2026-09-10T04:29:44+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "provider": "openrouter",
+      "free": true,
+      "label": "nemotron-3-super-120b-a12b:free",
+      "tier": "H",
+      "reasoning": true,
+      "created": 1789014585,
+      "last_verified": "2026-09-10T04:29:45+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "qwen/qwen3.8-27b",
+      "provider": "groq",
+      "free": true,
+      "label": "qwen3.8-27b",
+      "tier": "M",
+      "created": 1789014587,
+      "last_verified": "2026-09-10T04:29:47+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "qwen/qwen3.6-27b",
+      "provider": "groq",
+      "free": true,
+      "label": "qwen3.6-27b",
+      "tier": "M",
+      "created": 1789014588,
+      "last_verified": "2026-09-10T04:29:48+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "groq/compound-mini",
+      "provider": "groq",
+      "free": true,
+      "label": "compound-mini",
+      "tier": "S",
+      "created": 1789014590,
+      "last_verified": "2026-09-10T04:29:50+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "allam-2-7b",
+      "provider": "groq",
+      "free": true,
+      "label": "allam-2-7b",
+      "tier": "S",
+      "created": 1789014591,
+      "last_verified": "2026-09-10T04:29:51+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "groq/compound",
+      "provider": "groq",
+      "free": true,
+      "label": "compound",
+      "tier": "S",
+      "created": 1789014592,
+      "last_verified": "2026-09-10T04:29:52+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "codestral-2508",
+      "provider": "mistral",
+      "free": true,
+      "label": "codestral-2508",
+      "tier": "S",
+      "coding": true,
+      "created": 1789014593,
+      "last_verified": "2026-09-10T04:29:53+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "codestral-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "codestral-latest",
+      "tier": "S",
+      "coding": true,
+      "created": 1789014593,
+      "last_verified": "2026-09-10T04:29:53+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "mistral-code-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-code-latest",
+      "tier": "S",
+      "coding": true,
+      "created": 1789014594,
+      "last_verified": "2026-09-10T04:29:54+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "mistral-code-fim-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-code-fim-latest",
+      "tier": "S",
+      "coding": true,
+      "created": 1789014594,
+      "last_verified": "2026-09-10T04:29:54+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "mistral-small-2603",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-small-2603",
+      "tier": "S",
+      "created": 1789014595,
+      "last_verified": "2026-09-10T04:29:55+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-small-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-small-latest",
+      "tier": "S",
+      "created": 1789014595,
+      "last_verified": "2026-09-10T04:29:55+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-vibe-cli-fast",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-vibe-cli-fast",
+      "tier": "S",
+      "created": 1789014596,
+      "last_verified": "2026-09-10T04:29:56+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "magistral-small-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "magistral-small-latest",
+      "tier": "S",
+      "created": 1789014596,
+      "last_verified": "2026-09-10T04:29:56+00:00",
+      "last_status": "throttled",
+      "reasoning": true
+    },
+    {
+      "id": "voxtral-small-2507",
+      "provider": "mistral",
+      "free": true,
+      "label": "voxtral-small-2507",
+      "tier": "S",
+      "created": 1789014597,
+      "last_verified": "2026-09-10T04:29:57+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "voxtral-small-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "voxtral-small-latest",
+      "tier": "S",
+      "created": 1789014597,
+      "last_verified": "2026-09-10T04:29:57+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "ministral-3b-2512",
+      "provider": "mistral",
+      "free": true,
+      "label": "ministral-3b-2512",
+      "tier": "S",
+      "created": 1789014599,
+      "last_verified": "2026-09-10T04:29:59+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "ministral-3b-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "ministral-3b-latest",
+      "tier": "S",
+      "created": 1789014599,
+      "last_verified": "2026-09-10T04:29:59+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "ministral-8b-2512",
+      "provider": "mistral",
+      "free": true,
+      "label": "ministral-8b-2512",
+      "tier": "S",
+      "created": 1789014600,
+      "last_verified": "2026-09-10T04:30:00+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "ministral-8b-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "ministral-8b-latest",
+      "tier": "S",
+      "created": 1789014600,
+      "last_verified": "2026-09-10T04:30:00+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "ministral-14b-2512",
+      "provider": "mistral",
+      "free": true,
+      "label": "ministral-14b-2512",
+      "tier": "M",
+      "created": 1789014601,
+      "last_verified": "2026-09-10T04:30:01+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "ministral-14b-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "ministral-14b-latest",
+      "tier": "M",
+      "created": 1789014602,
+      "last_verified": "2026-09-10T04:30:02+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "mistral-medium-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-medium-latest",
+      "tier": "S",
+      "created": 1789014602,
+      "last_verified": "2026-09-10T04:30:02+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-medium",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-medium",
+      "tier": "S",
+      "created": 1789014602,
+      "last_verified": "2026-09-10T04:30:02+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-medium-3-5",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-medium-3-5",
+      "tier": "S",
+      "created": 1789014603,
+      "last_verified": "2026-09-10T04:30:03+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-medium-3.5",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-medium-3.5",
+      "tier": "S",
+      "created": 1789014603,
+      "last_verified": "2026-09-10T04:30:03+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-medium-3",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-medium-3",
+      "tier": "S",
+      "created": 1789014604,
+      "last_verified": "2026-09-10T04:30:04+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-medium-2604",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-medium-2604",
+      "tier": "S",
+      "created": 1789014604,
+      "last_verified": "2026-09-10T04:30:04+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-vibe-cli-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-vibe-cli-latest",
+      "tier": "S",
+      "created": 1789014605,
+      "last_verified": "2026-09-10T04:30:05+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "mistral-vibe-cli-with-tools",
+      "provider": "mistral",
+      "free": true,
+      "label": "mistral-vibe-cli-with-tools",
+      "tier": "S",
+      "created": 1789014605,
+      "last_verified": "2026-09-10T04:30:05+00:00",
+      "last_status": "throttled"
+    },
+    {
+      "id": "magistral-medium-latest",
+      "provider": "mistral",
+      "free": true,
+      "label": "magistral-medium-latest",
+      "tier": "S",
+      "created": 1789014605,
+      "last_verified": "2026-09-10T04:30:05+00:00",
+      "last_status": "throttled",
+      "reasoning": true
+    },
+    {
+      "id": "deepseek-ai/deepseek-v4-pro-0813",
+      "provider": "nvidia",
+      "free": true,
+      "label": "deepseek-v4-pro-0813",
+      "tier": "S",
+      "created": 1789014640,
+      "last_verified": "2026-09-10T04:30:40+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "google/diffusiongemma-26b-a4b-it",
+      "provider": "nvidia",
+      "free": true,
+      "label": "diffusiongemma-26b-a4b-it",
+      "tier": "S",
+      "created": 1789014656,
+      "last_verified": "2026-09-10T04:30:56+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "meta/llama-3.2-11b-vision-instruct",
+      "provider": "nvidia",
+      "free": true,
+      "label": "llama-3.2-11b-vision-instruct",
+      "tier": "S",
+      "vision": true,
+      "created": 1789014684,
+      "last_verified": "2026-09-10T04:31:24+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "provider": "nvidia",
+      "free": true,
+      "label": "nemotron-3-nano-omni-30b-a3b-reasoning",
+      "tier": "S",
+      "reasoning": true,
+      "created": 1789014754,
+      "last_verified": "2026-09-10T04:32:34+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "provider": "nvidia",
+      "free": true,
+      "label": "nemotron-3-ultra-550b-a55b",
+      "tier": "S",
+      "reasoning": true,
+      "created": 1789014761,
+      "last_verified": "2026-09-10T04:32:41+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "provider": "nvidia",
+      "free": true,
+      "label": "nemotron-3.5-lightning-30b-a3b",
+      "tier": "S",
+      "reasoning": true,
+      "created": 1789014763,
+      "last_verified": "2026-09-10T04:32:43+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nvidia/riva-translate-4b-instruct-v1.1",
+      "provider": "nvidia",
+      "free": true,
+      "label": "riva-translate-4b-instruct-v1.1",
+      "tier": "S",
+      "created": 1789014767,
+      "last_verified": "2026-09-10T04:32:47+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "nvidia/riva-translate-4b-instruct-v2",
+      "provider": "nvidia",
+      "free": true,
+      "label": "riva-translate-4b-instruct-v2",
+      "tier": "S",
+      "created": 1789014768,
+      "last_verified": "2026-09-10T04:32:48+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "c4ai-aya-expanse-32b",
+      "provider": "cohere",
+      "free": true,
+      "label": "c4ai-aya-expanse-32b",
+      "tier": "M",
+      "created": 1789014769,
+      "last_verified": "2026-09-10T04:32:49+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "c4ai-aya-vision-32b",
+      "provider": "cohere",
+      "free": true,
+      "label": "c4ai-aya-vision-32b",
+      "tier": "M",
+      "vision": true,
+      "created": 1789014770,
+      "last_verified": "2026-09-10T04:32:50+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-a-03-2025",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-a-03-2025",
+      "tier": "S",
+      "created": 1789014771,
+      "last_verified": "2026-09-10T04:32:51+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-a-plus-05-2026",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-a-plus-05-2026",
+      "tier": "S",
+      "created": 1789014772,
+      "last_verified": "2026-09-10T04:32:52+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-a-reasoning-08-2025",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-a-reasoning-08-2025",
+      "tier": "S",
+      "reasoning": true,
+      "created": 1789014772,
+      "last_verified": "2026-09-10T04:32:52+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-a-translate-08-2025",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-a-translate-08-2025",
+      "tier": "S",
+      "created": 1789014773,
+      "last_verified": "2026-09-10T04:32:53+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-a-vision-07-2025",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-a-vision-07-2025",
+      "tier": "S",
+      "vision": true,
+      "created": 1789014774,
+      "last_verified": "2026-09-10T04:32:54+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-r-08-2024",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-r-08-2024",
+      "tier": "S",
+      "created": 1789014774,
+      "last_verified": "2026-09-10T04:32:54+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-r-plus-08-2024",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-r-plus-08-2024",
+      "tier": "S",
+      "created": 1789014776,
+      "last_verified": "2026-09-10T04:32:56+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "command-r7b-12-2024",
+      "provider": "cohere",
+      "free": true,
+      "label": "command-r7b-12-2024",
+      "tier": "S",
+      "created": 1789014776,
+      "last_verified": "2026-09-10T04:32:56+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "north-mini-code-1-0",
+      "provider": "cohere",
+      "free": true,
+      "label": "north-mini-code-1-0",
+      "tier": "S",
+      "coding": true,
+      "created": 1789014778,
+      "last_verified": "2026-09-10T04:32:58+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "north-small-translate-09-2026",
+      "provider": "cohere",
+      "free": true,
+      "label": "north-small-translate-09-2026",
+      "tier": "S",
+      "created": 1789014778,
+      "last_verified": "2026-09-10T04:32:58+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "tiny-aya-earth",
+      "provider": "cohere",
+      "free": true,
+      "label": "tiny-aya-earth",
+      "tier": "S",
+      "created": 1789014779,
+      "last_verified": "2026-09-10T04:32:59+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "tiny-aya-fire",
+      "provider": "cohere",
+      "free": true,
+      "label": "tiny-aya-fire",
+      "tier": "S",
+      "created": 1789014780,
+      "last_verified": "2026-09-10T04:33:00+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "tiny-aya-global",
+      "provider": "cohere",
+      "free": true,
+      "label": "tiny-aya-global",
+      "tier": "S",
+      "created": 1789014780,
+      "last_verified": "2026-09-10T04:33:00+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "tiny-aya-water",
+      "provider": "cohere",
+      "free": true,
+      "label": "tiny-aya-water",
+      "tier": "S",
+      "created": 1789014781,
+      "last_verified": "2026-09-10T04:33:01+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/google/gemma-2b-it-lora",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "gemma-2b-it-lora",
+      "tier": "S",
+      "created": 1789014784,
+      "last_verified": "2026-09-10T04:33:04+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/meta/llama-3.2-3b-instruct",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "llama-3.2-3b-instruct",
+      "tier": "S",
+      "created": 1789014784,
+      "last_verified": "2026-09-10T04:33:04+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/mistral/mistral-7b-instruct-v0.2-lora",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "mistral-7b-instruct-v0.2-lora",
+      "tier": "S",
+      "created": 1789014785,
+      "last_verified": "2026-09-10T04:33:05+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "deepseek-r1-distill-qwen-32b",
+      "tier": "H",
+      "reasoning": true,
+      "created": 1789014787,
+      "last_verified": "2026-09-10T04:33:07+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/meta/llama-3.1-8b-instruct-fp8",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "llama-3.1-8b-instruct-fp8",
+      "tier": "S",
+      "created": 1789014788,
+      "last_verified": "2026-09-10T04:33:08+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/meta/llama-3.2-1b-instruct",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "llama-3.2-1b-instruct",
+      "tier": "S",
+      "created": 1789014789,
+      "last_verified": "2026-09-10T04:33:09+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/meta-llama/llama-2-7b-chat-hf-lora",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "llama-2-7b-chat-hf-lora",
+      "tier": "S",
+      "created": 1789014792,
+      "last_verified": "2026-09-10T04:33:12+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "llama-3.3-70b-instruct-fp8-fast",
+      "tier": "H",
+      "created": 1789014793,
+      "last_verified": "2026-09-10T04:33:13+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/ibm-granite/granite-4.0-h-micro",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "granite-4.0-h-micro",
+      "tier": "S",
+      "created": 1789014793,
+      "last_verified": "2026-09-10T04:33:13+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/qwen/qwen2.5-coder-32b-instruct",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "qwen2.5-coder-32b-instruct",
+      "tier": "M",
+      "coding": true,
+      "created": 1789014794,
+      "last_verified": "2026-09-10T04:33:14+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/aisingapore/gemma-sea-lion-v4-27b-it",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "gemma-sea-lion-v4-27b-it",
+      "tier": "M",
+      "created": 1789014796,
+      "last_verified": "2026-09-10T04:33:16+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/google/gemma-7b-it-lora",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "gemma-7b-it-lora",
+      "tier": "S",
+      "created": 1789014799,
+      "last_verified": "2026-09-10T04:33:19+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "mistral-small-3.1-24b-instruct",
+      "tier": "M",
+      "created": 1789014802,
+      "last_verified": "2026-09-10T04:33:22+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "llama-4-scout-17b-16e-instruct",
+      "tier": "S",
+      "created": 1789014806,
+      "last_verified": "2026-09-10T04:33:26+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "@cf/qwen/qwq-32b",
+      "provider": "cloudflare",
+      "free": true,
+      "label": "qwq-32b",
+      "tier": "M",
+      "created": 1789014807,
+      "last_verified": "2026-09-10T04:33:27+00:00",
+      "last_status": "alive",
+      "reasoning": true
+    },
+    {
+      "id": "zai-org/GLM-5.3-Flash",
+      "provider": "huggingface",
+      "free": true,
+      "label": "GLM-5.3-Flash",
+      "tier": "S",
+      "created": 1789014811,
+      "last_verified": "2026-09-10T04:33:31+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "zai-org/GLM-5.3",
+      "provider": "huggingface",
+      "free": true,
+      "label": "GLM-5.3",
+      "tier": "S",
+      "created": 1789014813,
+      "last_verified": "2026-09-10T04:33:33+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "inclusionAI/Ling-3.0-flash-Fin",
+      "provider": "huggingface",
+      "free": true,
+      "label": "Ling-3.0-flash-Fin",
+      "tier": "S",
+      "created": 1789014814,
+      "last_verified": "2026-09-10T04:33:34+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "meta-llama/Llama-3.1-8B-Instruct",
+      "provider": "huggingface",
+      "free": true,
+      "label": "Llama-3.1-8B-Instruct",
+      "tier": "S",
+      "created": 1789014816,
+      "last_verified": "2026-09-10T04:33:36+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "inclusionAI/Ling-3.0-flash-VL",
+      "provider": "huggingface",
+      "free": true,
+      "label": "Ling-3.0-flash-VL",
+      "tier": "S",
+      "vision": true,
+      "created": 1789014818,
+      "last_verified": "2026-09-10T04:33:38+00:00",
+      "last_status": "alive"
+    },
+    {
+      "id": "gpt-oss:120b",
+      "provider": "local",
+      "free": true,
+      "label": "gpt-oss:120b",
+      "tier": "H",
+      "created": 1789014846,
+      "last_verified": "2026-09-10T04:34:06+00:00",
+      "last_status": "alive"
+    }
+  ]
+}
