@@ -372,11 +372,12 @@ class FreeModelPool:
         messages = [{"role": "system", "content": system_prompt}]
         messages.extend(history or [])
         messages.append({"role": "user", "content": user_content})
+        provider_max_tokens = min(max_tokens, 900) if provider == "groq" else max_tokens
         payload = {
             "model": model["id"],
             "messages": messages,
             "temperature": 0.7,
-            "max_tokens": max_tokens,
+            "max_tokens": provider_max_tokens,
             "stream": False,
         }
         headers = {
