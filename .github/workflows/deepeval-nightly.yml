@@ -137,12 +137,21 @@ jobs:
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_answer_relevancy --tb=short
 
-      - name: Run DeepEval standard 10-test suite
+      - name: Run DeepEval standard 7-test suite
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
         id: standard
         continue-on-error: true
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py --tb=short
+
+      - name: Run browser LLM judge standard 7-test suite
+        if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
+        id: browser_judge
+        continue-on-error: true
+        env:
+          RUN_LLM_EVALS: '1'
+        run: |
+          python -m pytest tests/llmEval/test_chatbot_judge_ui.py --tb=short
 
       - name: Upload DeepEval raw results
         if: always() && steps.local_llm.outputs.run == 'true'
@@ -153,6 +162,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
           include-hidden-files: true
+
+      - name: Upload browser failure evidence
+        if: always() && steps.local_llm.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-browser-failures-${{ github.run_number }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Build DeepEval Pages UI
         if: always() && steps.local_llm.outputs.run == 'true'
@@ -213,6 +231,8 @@ jobs:
       - name: Fail if DeepEval failed
         if: steps.local_llm.outputs.run == 'true'
         run: |
-          if [ "${{ steps.smoke.outcome }}" = "failure" ] || [ "${{ steps.standard.outcome }}" = "failure" ]; then
+          if [ "${{ steps.smoke.outcome }}" = "failure" ] || \
+             [ "${{ steps.standard.outcome }}" = "failure" ] || \
+             [ "${{ steps.browser_judge.outcome }}" = "failure" ]; then
             exit 1
           fi
