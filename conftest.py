@@ -1,5 +1,4 @@
 import os
-import shutil
 import pathlib
 import re
 import httpx
@@ -14,10 +13,8 @@ from pages.common_components import CommonComponents
 from pages.interactive_tools import InteractiveTools
 
 @pytest.fixture(scope='session', autouse=True)
-def clean_test_results():
+def ensure_test_results_directory():
     output = pathlib.Path('test-results')
-    if output.exists():
-        shutil.rmtree(output)
     output.mkdir(exist_ok=True)
     yield
 
@@ -36,7 +33,8 @@ def site_base_url(pytestconfig) -> str:
 
 @pytest.fixture
 def api_client(site_base_url: str):
-    with httpx.Client(base_url=site_base_url, follow_redirects=True, timeout=20.0) as client:
+    timeout = float(os.getenv('NANOTECH_API_TIMEOUT_SEC', '60'))
+    with httpx.Client(base_url=site_base_url, follow_redirects=True, timeout=timeout) as client:
         yield client
 
 

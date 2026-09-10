@@ -11,7 +11,7 @@ from deepeval.models import DeepEvalBaseLLM
 from utils.request_cache import RequestCache
 
 
-_THINK_RE = re.compile(r'<think>.*?</think>', re.DOTALL)
+_THINK_RE = re.compile(r'<think>.*?</think>', re.DOTALL | re.IGNORECASE)
 _RETRYABLE_STATUSES = {429, 502, 503, 504}
 _JUDGE_CACHE = RequestCache('nanotech_judge_cache')
 
@@ -23,7 +23,7 @@ class NanotechJudge(DeepEvalBaseLLM):
         self.base_url = (base_url or os.getenv('LOCAL_LLM_BASE_URL', 'http://127.0.0.1:11434/v1')).rstrip('/')
         self.model = os.getenv('LOCAL_LLM_MODEL', 'gpt-oss:120b')
         self.api_key = os.getenv('LOCAL_LLM_API_KEY', 'ollama')
-        self.timeout = timeout or float(os.getenv('LOCAL_LLM_TIMEOUT_SEC', '180'))
+        self.timeout = timeout or float(os.getenv('LOCAL_LLM_TIMEOUT_SEC', '300'))
         self._last_model: Optional[str] = None
         self.max_attempts = int(os.getenv('NANOTECH_LLM_MAX_ATTEMPTS', '3'))
         self.retry_base_delay = float(os.getenv('NANOTECH_LLM_RETRY_BASE_DELAY', '2.0'))
@@ -56,6 +56,7 @@ class NanotechJudge(DeepEvalBaseLLM):
                             'model': self.model,
                             'messages': [{'role': 'user', 'content': prompt}],
                             'temperature': 0,
+                            'max_tokens': 2048,
                             'response_format': {'type': 'json_object'},
                             'stream': False,
                         },
