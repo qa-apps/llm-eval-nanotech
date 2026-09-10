@@ -21,6 +21,7 @@ def test_paid_and_unmarked_routes_fail_closed(monkeypatch):
 
     assert is_free_only_model(_model("vendor/model:free", "openrouter"))
     assert not is_free_only_model(_model("vendor/model", "openrouter"))
+    assert not is_free_only_model(_model("gemini-2.5-pro", "gemini"))
     assert not is_free_only_model({"id": "openai/gpt-5", "provider": "openai", "free": True})
     assert not is_free_only_model({"id": "codestral-latest", "provider": "mistral"})
 

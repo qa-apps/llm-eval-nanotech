@@ -9,6 +9,7 @@ User=www-data
 Group=www-data
 WorkingDirectory=/var/www/nanotech
 EnvironmentFile=/etc/nanotech-chat.env
+UnsetEnvironment=GEMINI_API_KEY GOOGLE_API_KEY VERTEX_API_KEY OPENAI_API_KEY ANTHROPIC_API_KEY
 ExecStart=/usr/bin/python3 /var/www/nanotech/model_curator.py
 ExecStartPost=+/usr/bin/systemctl try-restart nanotech-chat.service
 Nice=10
