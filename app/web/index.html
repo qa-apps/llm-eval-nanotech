@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoTech Hub - AI-Driven Business Automation Solutions</title>
+    <meta name="description" content="Transform your business with AI-powered automation solutions. Custom AI development, process automation, and intelligent workflow optimization for enterprise success.">
+    <meta name="keywords" content="agentic AI, AI agents, AI automation, business automation, RPA, artificial intelligence, machine learning, process automation, AI consulting, workflow optimization, enterprise AI, multi-agent systems, CrewAI, LangGraph, AutoGen">
+    <link rel="stylesheet" href="style.css?v=20260910-1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+</head>
+<body class="light-mode">
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <div class="announcement-content">
+            <span class="announcement-badge">NEW</span>
+            <span>Introducing Agentic AI Solutions — Autonomous AI Agents for Enterprise Automation</span>
+            <a href="#services" class="announcement-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h2>NanoTech<span class="brand-accent"> Hub</span></h2>
+            </div>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li><a href="#home" class="nav-link">Home</a></li>
+                    <li class="has-dropdown">
+                        <a href="#" class="nav-link">Solutions <i class="fas fa-chevron-down dd-icon"></i></a>
+                        <div class="mega-dropdown">
+                            <div class="dd-col">
+                                <a href="/pages/solutions/ai-process-automation.html">AI Process Automation</a>
+                                <a href="/pages/solutions/multi-agent-orchestration.html">Multi-Agent Orchestration</a>
+                                <a href="/pages/solutions/predictive-analytics.html">Predictive Analytics</a>
+                                <a href="/pages/solutions/document-intelligence.html">Document Intelligence</a>
+                                <a href="/pages/solutions/conversational-ai.html">Conversational AI</a>
+                            </div>
+                            <div class="dd-col">
+                                <a href="/pages/solutions/ai-quality-assurance.html">AI Quality Assurance</a>
+                                <a href="/pages/solutions/knowledge-management.html">Knowledge Management</a>
+                                <a href="/pages/solutions/workflow-optimization.html">Workflow Optimization</a>
+                                <a href="/pages/solutions/computer-vision.html">Computer Vision</a>
+                                <a href="/pages/solutions/custom-llm-development.html">Custom LLM Development</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="#services" class="nav-link">Services <i class="fas fa-chevron-down dd-icon"></i></a>
+                        <div class="mega-dropdown">
+                            <div class="dd-col">
+                                <a href="/pages/services/ai-consulting.html">AI Consulting & Strategy</a>
+                                <a href="/pages/services/mcp-development.html">MCP Development</a>
+                                <a href="/pages/services/ai-agent-development.html">AI Agent Development</a>
+                                <a href="/pages/services/rag-implementation.html">RAG Implementation</a>
+                                <a href="/pages/services/api-integration.html">API Integration</a>
+                            </div>
+                            <div class="dd-col">
+                                <a href="/pages/services/ml-model-training.html">ML Model Training</a>
+                                <a href="/pages/services/data-engineering.html">Data Engineering</a>
+                                <a href="/pages/services/ai-testing-automation.html">AI Testing & Automation</a>
+                                <a href="/pages/services/cloud-ai-deployment.html">Cloud AI Deployment</a>
+                                <a href="/pages/services/ai-maintenance-support.html">AI Maintenance & Support</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="#industries" class="nav-link">Industries <i class="fas fa-chevron-down dd-icon"></i></a>
+                        <div class="mega-dropdown">
+                            <div class="dd-col">
+                                <a href="/pages/industries/finance-banking.html">Finance & Banking</a>
+                                <a href="/pages/industries/healthcare.html">Healthcare</a>
+                                <a href="/pages/industries/retail-ecommerce.html">Retail & E-Commerce</a>
+                                <a href="/pages/industries/manufacturing.html">Manufacturing</a>
+                                <a href="/pages/industries/logistics-supply-chain.html">Logistics & Supply Chain</a>
+                            </div>
+                            <div class="dd-col">
+                                <a href="/pages/industries/insurance.html">Insurance</a>
+                                <a href="/pages/industries/legal-compliance.html">Legal & Compliance</a>
+                                <a href="/pages/industries/real-estate.html">Real Estate</a>
+                                <a href="/pages/industries/education.html">Education & E-Learning</a>
+                                <a href="/pages/industries/energy-utilities.html">Energy & Utilities</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="#" class="nav-link">Technologies <i class="fas fa-chevron-down dd-icon"></i></a>
+                        <div class="mega-dropdown">
+                            <div class="dd-col">
+                                <a href="/pages/technologies/langchain-langraph.html">LangChain & LangGraph</a>
+                                <a href="/pages/technologies/crewai-autogen.html">CrewAI & AutoGen</a>
+                                <a href="/pages/technologies/openai-agents-sdk.html">OpenAI Agents SDK</a>
+                                <a href="/pages/technologies/vector-databases.html">Vector Databases</a>
+                                <a href="/pages/technologies/model-context-protocol.html">Model Context Protocol</a>
+                            </div>
+                            <div class="dd-col">
+                                <a href="/pages/technologies/huggingface-transformers.html">HuggingFace & Transformers</a>
+                                <a href="/pages/technologies/pytorch-tensorflow.html">PyTorch & TensorFlow</a>
+                                <a href="/pages/technologies/kubernetes-mlops.html">Kubernetes & MLOps</a>
+                                <a href="/pages/technologies/graph-neural-networks.html">Graph Neural Networks</a>
+                                <a href="/pages/technologies/edge-ai.html">Edge AI & On-Device</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="#" class="nav-link">Resources <i class="fas fa-chevron-down dd-icon"></i></a>
+                        <div class="mega-dropdown">
+                            <div class="dd-col">
+                                <a href="/pages/resources/case-studies.html">Case Studies</a>
+                                <a href="/pages/resources/whitepapers.html">Whitepapers</a>
+                                <a href="/pages/resources/ai-glossary.html">AI Glossary</a>
+                                <a href="/pages/resources/roi-calculator.html">ROI Calculator</a>
+                                <a href="/pages/resources/implementation-guide.html">Implementation Guide</a>
+                            </div>
+                            <div class="dd-col">
+                                <a href="/pages/resources/ai-readiness-assessment.html">AI Readiness Assessment</a>
+                                <a href="/pages/resources/blog.html">Blog & Insights</a>
+                                <a href="/pages/resources/webinars.html">Webinars & Events</a>
+                                <a href="/pages/resources/faq.html">FAQ</a>
+                                <a href="/pages/resources/partner-program.html">Partner Program</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-actions">
+                <select class="theme-style-select" id="theme-style-select" aria-label="Select background theme">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="aurora">Aurora Blue</option>
+                    <option value="glass">Glass Dawn</option>
+                </select>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="auth-btn" id="auth-btn" aria-label="Login or Register">
+                    <i class="fas fa-user"></i> <span class="auth-btn-label">Login</span>
+                </button>
+                <div class="user-menu" id="user-menu" style="display:none;">
+                    <button class="user-menu-toggle" id="user-menu-toggle">
+                        <i class="fas fa-user-circle"></i> <span id="user-display-name"></span>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="#" id="user-dashboard-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="#" id="user-logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                <button class="nav-toggle" id="nav-toggle" aria-label="Toggle mobile menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="floating-orb" style="width:320px;height:320px;background:rgba(99,102,241,0.12);top:10%;left:5%;animation-duration:15s;"></div>
+        <div class="floating-orb" style="width:250px;height:250px;background:rgba(139,92,246,0.10);top:60%;right:10%;animation-duration:18s;animation-delay:-5s;"></div>
+        <div class="floating-orb" style="width:200px;height:200px;background:rgba(6,182,212,0.08);bottom:10%;left:40%;animation-duration:20s;animation-delay:-8s;"></div>
+        <div class="floating-orb" style="width:150px;height:150px;background:rgba(16,185,129,0.07);top:30%;right:30%;animation-duration:13s;animation-delay:-3s;"></div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="title-line">Transforming Business</span>
+                    <span class="title-line">with Intelligent</span>
+                    <span class="title-line highlight">AI Automation</span>
+                </h1>
+                <p class="hero-description">
+                    We build custom AI solutions that streamline operations, automate complex
+                    workflows, and reduce costs by up to 70%. From intelligent process automation
+                    to advanced analytics — we help businesses scale with the power of AI.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-primary">Schedule AI Assessment</a>
+                    <a href="#" class="btn btn-secondary" id="see-ai-action-btn">See AI in Action</a>
+                </div>
+            </div>
+            <div class="hero-visual" id="hero-visual">
+                <canvas id="hero-canvas"></canvas>
+                <div id="hero-tooltip" class="hero-tooltip"></div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">About NanoTech Hub</span>
+                <h2 class="section-title">Leading AI Automation & Intelligence</h2>
+            </div>
+            <div class="about-content about-content-split">
+                <div class="about-text-block">
+                    <p>
+                        NanoTech Hub is your strategic partner in AI-driven business transformation. We design, build,
+                        and deploy intelligent automation systems that streamline operations and unlock new revenue streams
+                        for enterprises across industries.
+                    </p>
+                    <p>
+                        Our solutions include AI-powered customer support agents that resolve 80% of tickets without
+                        human intervention, predictive analytics pipelines that forecast demand with 95% accuracy, and
+                        automated document processing workflows that cut manual review time by 90%.
+                    </p>
+                    <p>
+                        From multi-model LLM orchestration and RAG-based knowledge systems to computer vision quality
+                        control and real-time fraud detection, we deliver production-ready AI that integrates seamlessly
+                        with your existing infrastructure. Our expert team combines deep technical knowledge with business
+                        acumen to ensure every project delivers measurable ROI from day one.
+                    </p>
+                </div>
+                <div class="stats stats-grid-6">
+                    <div class="stat">
+                        <h3>200+</h3>
+                        <p>AI Projects Delivered</p>
+                    </div>
+                    <div class="stat">
+                        <h3>70%</h3>
+                        <p>Average Cost Reduction</p>
+                    </div>
+                    <div class="stat">
+                        <h3>50+</h3>
+                        <p>Enterprise Clients</p>
+                    </div>
+                    <div class="stat">
+                        <h3>15+</h3>
+                        <p>AI Patents & Innovations</p>
+                    </div>
+                    <div class="stat">
+                        <h3>99.9%</h3>
+                        <p>Uptime Reliability</p>
+                    </div>
+                    <div class="stat">
+                        <h3>24/7</h3>
+                        <p>Dedicated AI Support</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technologies -->
+    <section class="trusted-by">
+        <div class="container">
+            <p class="trusted-label">Powered by the most innovative technologies in the world</p>
+            <div class="logo-marquee">
+                <div class="logo-track">
+                    <span class="client-logo"><i class="fas fa-robot"></i> Agentic AI</span>
+                    <span class="client-logo"><i class="fas fa-brain"></i> Large Language Models</span>
+                    <span class="client-logo"><i class="fas fa-microchip"></i> Machine Learning</span>
+                    <span class="client-logo"><i class="fas fa-eye"></i> Computer Vision</span>
+                    <span class="client-logo"><i class="fas fa-database"></i> Big Data</span>
+                    <span class="client-logo"><i class="fas fa-chart-line"></i> Data Analytics</span>
+                    <span class="client-logo"><i class="fas fa-cogs"></i> Robotic Process Automation</span>
+                    <span class="client-logo"><i class="fas fa-network-wired"></i> Neural Networks</span>
+                    <span class="client-logo"><i class="fas fa-comments"></i> Natural Language Processing</span>
+                    <span class="client-logo"><i class="fas fa-cloud"></i> Cloud Computing</span>
+                    <span class="client-logo"><i class="fas fa-shield-alt"></i> Cybersecurity AI</span>
+                    <span class="client-logo"><i class="fas fa-project-diagram"></i> Knowledge Graphs</span>
+                    <span class="client-logo"><i class="fas fa-wand-magic-sparkles"></i> Generative AI</span>
+                    <span class="client-logo"><i class="fas fa-cubes"></i> Multi-Agent Systems</span>
+                    <span class="client-logo"><i class="fas fa-magnifying-glass"></i> RAG & Search</span>
+                    <span class="client-logo"><i class="fas fa-code"></i> AI Code Generation</span>
+                    <span class="client-logo"><i class="fas fa-robot"></i> Agentic AI</span>
+                    <span class="client-logo"><i class="fas fa-brain"></i> Large Language Models</span>
+                    <span class="client-logo"><i class="fas fa-microchip"></i> Machine Learning</span>
+                    <span class="client-logo"><i class="fas fa-eye"></i> Computer Vision</span>
+                    <span class="client-logo"><i class="fas fa-database"></i> Big Data</span>
+                    <span class="client-logo"><i class="fas fa-chart-line"></i> Data Analytics</span>
+                    <span class="client-logo"><i class="fas fa-cogs"></i> Robotic Process Automation</span>
+                    <span class="client-logo"><i class="fas fa-network-wired"></i> Neural Networks</span>
+                    <span class="client-logo"><i class="fas fa-comments"></i> Natural Language Processing</span>
+                    <span class="client-logo"><i class="fas fa-cloud"></i> Cloud Computing</span>
+                    <span class="client-logo"><i class="fas fa-shield-alt"></i> Cybersecurity AI</span>
+                    <span class="client-logo"><i class="fas fa-project-diagram"></i> Knowledge Graphs</span>
+                    <span class="client-logo"><i class="fas fa-wand-magic-sparkles"></i> Generative AI</span>
+                    <span class="client-logo"><i class="fas fa-cubes"></i> Multi-Agent Systems</span>
+                    <span class="client-logo"><i class="fas fa-magnifying-glass"></i> RAG & Search</span>
+                    <span class="client-logo"><i class="fas fa-code"></i> AI Code Generation</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Client Success Stories</span>
+                <h2 class="section-title">What Our Clients Say</h2>
+            </div>
+            <div class="testimonials-wrapper">
+                <button class="t-arrow t-prev" id="t-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                <div class="testimonials-carousel" id="testimonials-carousel">
+                <div class="testimonial-card active">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"NanoTech's agentic AI solution reduced our document processing time by 92%. Their multi-agent system handles everything from intake to classification autonomously."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>Sarah C.</strong><span>FinanceFlow Inc.</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"The ROI was visible within 3 months. Their AI agents now handle 80% of our customer inquiries, freeing our team to focus on strategic initiatives."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>Marcus W.</strong><span>Vantara Digital</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"Their CrewAI-powered multi-agent system transformed our supply chain. Predictive accuracy went from 72% to 96%, saving us $2.4M annually."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>Elena R.</strong><span>GlobalRetail Corp</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"We replaced three separate automation tools with NanoTech's unified agent platform. Integration took 2 weeks and we saw 65% cost savings in the first quarter alone."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>James T.</strong><span>Solaris MedGroup</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"Their autonomous agents process our insurance claims 24/7. What used to take our team 4 days now completes in under 2 hours with 99.7% accuracy."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>Priya S.</strong><span>Pinnacle Underwriters</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"The LangGraph-based workflow they built for our legal department automates contract review, risk flagging, and compliance checks. It's like having 10 extra analysts."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>David O.</strong><span>Crestline Legal Partners</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"NanoTech deployed a multi-agent customer service system across our 12 European markets in 6 weeks. Support tickets dropped 74% and CSAT scores hit an all-time high."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>Katarina N.</strong><span>EuroTrade AG</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"From initial consultation to production deployment, the NanoTech team was exceptional. Their AI agents now manage our entire inventory forecasting pipeline autonomously."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar"><i class="fas fa-user-circle"></i></div>
+                        <div><strong>Robert K.</strong><span>Orbitra Freight Corp.</span></div>
+                    </div>
+                </div>
+            </div>
+                <button class="t-arrow t-next" id="t-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="testimonial-dots" id="testimonial-dots">
+                <button class="t-dot active" data-index="0"></button>
+                <button class="t-dot" data-index="1"></button>
+                <button class="t-dot" data-index="2"></button>
+                <button class="t-dot" data-index="3"></button>
+                <button class="t-dot" data-index="4"></button>
+                <button class="t-dot" data-index="5"></button>
+                <button class="t-dot" data-index="6"></button>
+                <button class="t-dot" data-index="7"></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Our Agentic AI Solutions</span>
+                <h2 class="section-title">Autonomous Agent Services</h2>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Agentic Process Automation</h3>
+                    <p>Autonomous AI agents that handle end-to-end workflows — from document intake to decision-making — without human intervention.</p>
+                    <ul class="service-features">
+                        <li>Multi-Agent Workflows</li>
+                        <li>Intelligent Document Processing</li>
+                        <li>Autonomous Data Pipelines</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI Agent Development</h3>
+                    <p>Custom autonomous agents built with CrewAI, LangGraph, and AutoGen — designed to reason, plan, and execute complex tasks.</p>
+                    <ul class="service-features">
+                        <li>Multi-Agent Orchestration</li>
+                        <li>Tool-Using Agents</li>
+                        <li>Reasoning & Planning Agents</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <h3>AI Agent Orchestration & Integration</h3>
+                    <p>Seamless deployment of agentic AI into your existing infrastructure with multi-agent coordination and tool integration.</p>
+                    <ul class="service-features">
+                        <li>Agent-to-Agent Communication</li>
+                        <li>Enterprise API Orchestration</li>
+                        <li>Legacy System Modernization</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Business Process Analysis</h3>
+                    <p>Comprehensive analysis and optimization of business processes using AI-powered insights and recommendations.</p>
+                    <ul class="service-features">
+                        <li>Process Mining</li>
+                        <li>Bottleneck Identification</li>
+                        <li>Efficiency Optimization</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-vial"></i>
+                    </div>
+                    <h3>AI Testing & Quality Assurance</h3>
+                    <p>Enterprise-grade AI testing services ensuring reliability, accuracy, and compliance of your AI systems.</p>
+                    <ul class="service-features">
+                        <li>Model Validation</li>
+                        <li>Performance Testing</li>
+                        <li>Compliance Auditing</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>AI Strategy Consulting</h3>
+                    <p>Strategic guidance on AI adoption, implementation roadmaps, and digital transformation initiatives.</p>
+                    <ul class="service-features">
+                        <li>AI Readiness Assessment</li>
+                        <li>Technology Roadmap</li>
+                        <li>Change Management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Industries Section -->
+    <section id="industries" class="research">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Industries We Serve</span>
+                <h2 class="section-title">AI Solutions Across Sectors</h2>
+            </div>
+            <div class="research-content">
+                <div class="research-text">
+                    <h3>Transforming Industries with AI</h3>
+                    <p>
+                        We deliver industry-specific AI automation solutions that address unique challenges
+                        and drive measurable business outcomes across multiple sectors.
+                    </p>
+                    <div class="research-areas">
+                        <div class="research-area">
+                            <i class="fas fa-university"></i>
+                            <div>
+                                <h4>Financial Services</h4>
+                                <p>Automated fraud detection, risk assessment, and customer service optimization.</p>
+                            </div>
+                        </div>
+                        <div class="research-area">
+                            <i class="fas fa-heartbeat"></i>
+                            <div>
+                                <h4>Healthcare</h4>
+                                <p>Patient data management, diagnostic support, and administrative automation.</p>
+                            </div>
+                        </div>
+                        <div class="research-area">
+                            <i class="fas fa-industry"></i>
+                            <div>
+                                <h4>Manufacturing</h4>
+                                <p>Predictive maintenance, quality control, and supply chain optimization.</p>
+                            </div>
+                        </div>
+                        <div class="research-area">
+                            <i class="fas fa-shopping-cart"></i>
+                            <div>
+                                <h4>Retail & E-commerce</h4>
+                                <p>Inventory management, personalized recommendations, and customer analytics.</p>
+                            </div>
+                        </div>
+                        <div class="research-area">
+                            <i class="fas fa-truck"></i>
+                            <div>
+                                <h4>Logistics & Transport</h4>
+                                <p>Route optimization, warehouse automation, and shipment tracking.</p>
+                            </div>
+                        </div>
+                        <div class="research-area">
+                            <i class="fas fa-headset"></i>
+                            <div>
+                                <h4>Professional Services</h4>
+                                <p>Document automation, client management, and workflow optimization.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="research-visual">
+                    <div class="tech-stack-visual">
+                        <div class="tech-badge" style="--delay: 0s">
+                            <i class="fas fa-robot"></i>
+                            <span>Claude AI</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 0.3s">
+                            <i class="fas fa-brain"></i>
+                            <span>GPT Models</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 0.6s">
+                            <i class="fas fa-users-cog"></i>
+                            <span>CrewAI</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 0.9s">
+                            <i class="fas fa-diagram-project"></i>
+                            <span>LangGraph</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 1.2s">
+                            <i class="fas fa-network-wired"></i>
+                            <span>AutoGen</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 1.5s">
+                            <i class="fas fa-robot"></i>
+                            <span>OpenAI Agents SDK</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 1.8s">
+                            <i class="fas fa-diagram-project"></i>
+                            <span>LangChain</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 2.1s">
+                            <i class="fas fa-gears"></i>
+                            <span>n8n Workflows</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 2.4s">
+                            <i class="fas fa-database"></i>
+                            <span>Vector DBs</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 2.7s">
+                            <i class="fas fa-magnifying-glass"></i>
+                            <span>RAG Pipelines</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 3.0s">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <span>Anthropic Tool Use</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 3.3s">
+                            <i class="fas fa-cloud"></i>
+                            <span>Azure OpenAI</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 3.6s">
+                            <i class="fab fa-google"></i>
+                            <span>Vertex AI</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 3.9s">
+                            <i class="fas fa-cogs"></i>
+                            <span>RPA Tools</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 4.2s">
+                            <i class="fas fa-eye"></i>
+                            <span>Observability</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 4.5s">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Security & Compliance</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 4.8s">
+                            <i class="fas fa-sitemap"></i>
+                            <span>Agent Orchestration</span>
+                        </div>
+                        <div class="tech-badge" style="--delay: 5.1s">
+                            <i class="fas fa-cubes"></i>
+                            <span>Multi-Agent Systems</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI & Benefits Section -->
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">ROI & Benefits</span>
+                <h2 class="section-title">Measurable Business Impact</h2>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>70% Cost Reduction</h3>
+                    <p>Average savings on operational costs through intelligent automation and process optimization.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>5x Faster Processing</h3>
+                    <p>Dramatically reduce processing times with AI-powered automation and decision-making.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>99.9% Accuracy</h3>
+                    <p>Near-perfect accuracy in data processing, reducing errors and improving quality.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>24/7 Availability</h3>
+                    <p>Continuous operation without downtime, ensuring business continuity around the clock.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Scalable Growth</h3>
+                    <p>Easily scale operations without proportional cost increases using AI automation.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Enhanced Compliance</h3>
+                    <p>Ensure regulatory compliance with automated monitoring and reporting systems.</p>
+                </div>
+            </div>
+            <div class="cta-section">
+                <h3>Ready to Transform Your Business?</h3>
+                <p>Download our free AI ROI Calculator to see potential savings for your organization.</p>
+                <div class="cta-buttons">
+                    <a href="#contact" id="quote-cta-btn" class="btn btn-primary">Get Custom Automation Quote</a>
+                    <a href="#roi-calculator" id="download-roi-cta-btn" class="btn btn-secondary">Download ROI Calculator</a>
+                </div>
+                <div id="roi-calculator" class="roi-calculator">
+                    <h4>Quick ROI Calculator</h4>
+                    <p>Estimate savings in under a minute.</p>
+                    <form id="roi-calculator-form" class="roi-form" novalidate>
+                        <div class="roi-form-grid">
+                            <div class="roi-field">
+                                <label for="roi-hours">Manual hours per month</label>
+                                <input type="number" id="roi-hours" min="1" step="1" required>
+                            </div>
+                            <div class="roi-field">
+                                <label for="roi-hourly-rate">Average hourly cost (USD)</label>
+                                <input type="number" id="roi-hourly-rate" min="1" step="1" required>
+                            </div>
+                            <div class="roi-field">
+                                <label for="roi-automation">Automation coverage (%)</label>
+                                <input type="number" id="roi-automation" min="1" max="100" step="1" value="70" required>
+                            </div>
+                            <div class="roi-field">
+                                <label for="roi-software-cost">Monthly software/tool cost (USD)</label>
+                                <input type="number" id="roi-software-cost" min="0" step="1" value="800" required>
+                            </div>
+                            <div class="roi-field roi-field-wide">
+                                <label for="roi-setup-cost">One-time setup cost (USD)</label>
+                                <input type="number" id="roi-setup-cost" min="0" step="1" value="12000" required>
+                            </div>
+                        </div>
+                        <div class="roi-actions">
+                            <button type="submit" class="btn btn-primary">Calculate ROI</button>
+                            <button type="button" id="roi-download-result" class="btn btn-secondary">Download ROI Summary</button>
+                        </div>
+                    </form>
+                    <div id="roi-results" class="roi-results" hidden>
+                        <div class="roi-result-grid">
+                            <div class="roi-metric">
+                                <span>Monthly Savings</span>
+                                <strong id="roi-monthly-savings">$0</strong>
+                            </div>
+                            <div class="roi-metric">
+                                <span>Annual Net Benefit</span>
+                                <strong id="roi-annual-benefit">$0</strong>
+                            </div>
+                            <div class="roi-metric">
+                                <span>Payback Period</span>
+                                <strong id="roi-payback">-</strong>
+                            </div>
+                        </div>
+                        <p id="roi-summary" class="roi-summary"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Frequently Asked Questions</span>
+                <h2 class="section-title">Got Questions? We Have Answers</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question">What is Agentic AI and how is it different from traditional automation? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><p>Agentic AI uses autonomous agents that can reason, plan, and execute multi-step tasks independently. Unlike traditional RPA which follows rigid rules, our AI agents adapt to new situations, make decisions, use tools, and coordinate with other agents to complete complex workflows end-to-end.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">How long does it take to implement an AI automation solution? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><p>Typical projects range from 2-8 weeks depending on complexity. A simple single-agent automation can be deployed in 2 weeks, while a full multi-agent orchestration system with enterprise integrations usually takes 6-8 weeks. We provide a detailed timeline during the free AI assessment.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">What ROI can I expect from AI automation? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><p>Our clients typically see 40-70% cost reduction in automated processes, with payback periods of 3-6 months. Use our ROI Calculator above for a personalized estimate based on your specific operations and costs.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">Do you work with existing systems or require a complete overhaul? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><p>We integrate with your existing infrastructure. Our AI agents connect via APIs to your current CRM, ERP, databases, and communication tools. No need to replace what works — we enhance it with intelligent automation layers.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">What technologies and frameworks do you use? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><p>We use cutting-edge agentic frameworks including CrewAI, LangGraph, AutoGen, and OpenAI Agents SDK. For LLMs, we work with Claude, GPT-4, Gemini, and open-source models. Our stack also includes LangChain, vector databases, RAG pipelines, and enterprise orchestration tools like n8n.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">Is my data secure with your AI solutions? <i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><p>Absolutely. We follow enterprise-grade security practices including data encryption at rest and in transit, SOC 2 compliance, GDPR adherence, and optional on-premise deployment. Your data never leaves your control unless explicitly configured.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Contact Us</span>
+                <h2 class="section-title">Start Your AI Transformation</h2>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Get in Touch</h3>
+                    <p>
+                        Ready to revolutionize your business with AI automation?
+                        Our team of AI specialists is here to help you succeed.
+                    </p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p>info@nanotech.icu</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h4>Phone</h4>
+                                <p>+44 7593 012313</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Locations</h4>
+                                <p>London, UK • Gravesend, UK</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contact-actions">
+                        <a href="mailto:info@nanotech.icu?subject=Pricing%20Request" class="contact-action-btn">
+                            <i class="fas fa-calculator"></i> Get Pricing
+                        </a>
+                        <a href="mailto:info@nanotech.icu?subject=Book%20a%20Meeting" class="contact-action-btn">
+                            <i class="fas fa-calendar"></i> Book Meeting
+                        </a>
+                    </div>
+                </div>
+
+                <form class="contact-form" id="contact-form">
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" required>
+                        <label for="name">Full Name</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" required>
+                        <label for="email">Email Address</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="company" name="company">
+                        <label for="company">Company (Optional)</label>
+                    </div>
+                    <div class="form-group">
+                        <select id="service" name="service" required>
+                            <option value="">Select Service</option>
+                            <option value="rpa">Process Automation (RPA + AI)</option>
+                            <option value="custom-ai">Custom AI Model Development</option>
+                            <option value="integration">AI Integration & Implementation</option>
+                            <option value="analysis">Business Process Analysis</option>
+                            <option value="testing">AI Testing & Quality Assurance</option>
+                            <option value="consulting">AI Strategy Consulting</option>
+                            <option value="general">General Question</option>
+                        </select>
+                        <label for="service">Service Interest</label>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                        <label for="message">Message</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>NanoTech<span class="brand-accent"> Hub</span></h3>
+                    <p>Transforming businesses through AI-powered automation.</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/company/nanotech-hub" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>AI Services</h4>
+                        <ul>
+                            <li><a href="#services">Process Automation</a></li>
+                            <li><a href="#services">Custom AI Development</a></li>
+                            <li><a href="#services">AI Integration</a></li>
+                            <li><a href="#services">AI Strategy Consulting</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#industries">Industries</a></li>
+                            <li><a href="#benefits">ROI & Benefits</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="#contact">AI Assessment</a></li>
+                            <li><a href="#contact">ROI Calculator</a></li>
+                            <li><a href="#services">Case Studies</a></li>
+                            <li><a href="#contact">Get Demo</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-payments">
+                <p class="payments-label">Accepted Payment Methods</p>
+                <div class="payment-icons">
+                    <button class="payment-icon" data-method="PayPal" title="PayPal"><i class="fab fa-paypal"></i></button>
+                    <button class="payment-icon" data-method="Stripe" title="Stripe"><i class="fab fa-stripe"></i></button>
+                    <button class="payment-icon" data-method="Visa" title="Visa"><i class="fab fa-cc-visa"></i></button>
+                    <button class="payment-icon" data-method="Mastercard" title="Mastercard"><i class="fab fa-cc-mastercard"></i></button>
+                    <button class="payment-icon" data-method="American Express" title="American Express"><i class="fab fa-cc-amex"></i></button>
+                    <button class="payment-icon" data-method="Discover" title="Discover"><i class="fab fa-cc-discover"></i></button>
+                    <button class="payment-icon" data-method="Apple Pay" title="Apple Pay"><i class="fab fa-apple-pay"></i></button>
+                    <button class="payment-icon" data-method="Google Pay" title="Google Pay"><i class="fab fa-google-pay"></i></button>
+                    <button class="payment-icon" data-method="Bitcoin / Crypto" title="Crypto"><i class="fab fa-bitcoin"></i></button>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 NanoTech Hub. All rights reserved. &bull; <a href="terms.html" style="color:var(--text-secondary);text-decoration:underline;">Terms & Conditions</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Widget -->
+    <div id="chat-widget" class="chat-widget">
+        <button id="chat-toggle" class="chat-toggle" aria-label="Open chat">
+            <i class="fas fa-comments"></i>
+            <span class="chat-badge">1</span>
+        </button>
+
+        <div id="chat-window" class="chat-window">
+            <div class="chat-resize-handle chat-resize-handle-top" id="chat-resize-top" aria-hidden="true"></div>
+            <div class="chat-resize-handle chat-resize-handle-left" id="chat-resize-left" aria-hidden="true"></div>
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <h4>NanoTech Combo AI</h4>
+                        <span class="chat-status">
+                            <span class="status-dot"></span>
+                            Online - We reply instantly
+                        </span>
+                    </div>
+                </div>
+                <div class="chat-header-actions">
+                    <button id="chat-maximize" class="chat-header-btn" aria-label="Maximize chat">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button id="chat-close" class="chat-close-btn" aria-label="Close chat">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-message bot-message">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>👋 Hi! I'm your AI assistant at NanoTech Hub.</p>
+                        <p>How can I help you transform your business with AI automation today?</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-agent-bar" id="chat-agent-bar">
+                    <button class="agent-btn active" data-agent="auto" title="Automatically picks the best mode"><i class="fas fa-wand-magic-sparkles"></i> Auto</button>
+                    <button class="agent-btn" data-agent="general" title="Friendly assistant for everyday questions"><i class="fas fa-comments"></i> General</button>
+                    <button class="agent-btn" data-agent="coding" title="Write, debug, and review code"><i class="fas fa-code"></i> Code</button>
+                    <button class="agent-btn" data-agent="analyst" title="Data analysis, tables, documents"><i class="fas fa-chart-line"></i> Analyst</button>
+                    <button class="agent-btn" data-agent="research" title="In-depth research with web search"><i class="fas fa-magnifying-glass"></i> Research</button>
+                    <button class="agent-btn" data-agent="vision" title="Analyze and describe images"><i class="fas fa-eye"></i> Vision</button>
+                </div>
+                <input
+                    type="file"
+                    id="chat-file-input"
+                    class="chat-file-input"
+                    accept="image/*,.txt,.md,.csv,.json,.pdf,.doc,.docx,.xls,.xlsx"
+                    multiple
+                >
+                <div id="chat-attachments" class="chat-attachments" aria-live="polite"></div>
+                <form id="chat-form" class="chat-form">
+                    <button type="button" id="chat-attach-btn" class="chat-action-btn" aria-label="Add files and images">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button type="button" id="chat-mic-btn" class="chat-action-btn" aria-label="Voice input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <div class="chat-input-wrap">
+                        <input
+                            type="text"
+                            id="chat-input"
+                            class="chat-input"
+                            placeholder="Type your message..."
+                            autocomplete="off"
+                        >
+                        <button type="button" id="chat-stop" class="chat-inline-btn chat-stop-btn" aria-label="Stop" title="Stop">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                        <button type="button" id="chat-reset" class="chat-inline-btn chat-reset-btn" aria-label="New chat" title="New chat">
+                            <i class="fas fa-rotate-right"></i>
+                        </button>
+                    </div>
+                    <button type="submit" class="chat-send-btn" aria-label="Send message">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+                <div class="chat-footer-text">
+                    Powered by NanoTech Smart AI · <a href="/terms.html" target="_blank" style="color:inherit;text-decoration:underline">Terms</a>
+                    <br>AI responses may be inaccurate. Not professional advice.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-consent-overlay" id="chat-consent-overlay" aria-hidden="true">
+        <div class="chat-consent-modal" role="dialog" aria-modal="true" aria-labelledby="chat-consent-title" aria-describedby="chat-consent-summary">
+            <button type="button" class="chat-consent-close" id="chat-consent-close" aria-label="Close AI chat terms">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="chat-consent-kicker">AI Chat Terms</div>
+            <h3 id="chat-consent-title">Please review before using NanoTech Combo AI Chat</h3>
+            <p class="chat-consent-intro" id="chat-consent-summary">
+                This AI chat is offered for preliminary informational and business enquiry purposes only. It can be wrong, incomplete,
+                out of date, biased, unavailable, or unsuitable for your situation. You must independently verify all output before you
+                rely on it, distribute it, or use it for business, legal, regulatory, medical, technical, financial, tax, employment,
+                investment, safety, security, engineering, or operational decisions.
+            </p>
+            <div class="chat-consent-body">
+                <div class="chat-consent-section">
+                    <h4>1. Core use and no professional advice</h4>
+                    <ul class="chat-consent-list">
+                        <li>The AI chat is not a lawyer, doctor, accountant, broker, compliance officer, engineer, emergency service, or regulated adviser.</li>
+                        <li>No response creates legal advice, medical advice, investment advice, fiduciary duties, professional-client relationships, warranties, guarantees, or service commitments.</li>
+                        <li>You agree that any material decision, filing, transaction, contract, diagnosis, treatment, safety action, code deployment, security change, or compliance action requires independent human review by a qualified person.</li>
+                        <li>You will not treat outputs as verified facts, official statements, promises of performance, or binding commitments by NanoTech Hub.</li>
+                    </ul>
+                </div>
+                <div class="chat-consent-section">
+                    <h4>2. Accuracy, model behaviour, and service limitations</h4>
+                    <ul class="chat-consent-list">
+                        <li>Responses may be inaccurate, fabricated, misleading, offensive, incomplete, delayed, unavailable, or inconsistent between sessions.</li>
+                        <li>The service may summarise, translate, infer, classify, route, transform, or truncate your input and attached materials in ways that are imperfect.</li>
+                        <li>The service may rely on third-party AI models, hosting, moderation, storage, networking, and security tools, and their performance may affect your result.</li>
+                        <li>Availability, latency, routing, output style, safety filtering, feature access, and data retention may change without prior notice.</li>
+                    </ul>
+                </div>
+                <div class="chat-consent-section">
+                    <h4>3. Your responsibilities and prohibited use</h4>
+                    <ul class="chat-consent-list">
+                        <li>You are solely responsible for what you submit, ask, upload, copy, export, implement, publish, or rely on.</li>
+                        <li>You must not use the AI chat for unlawful conduct, harassment, fraud, impersonation, defamation, malware, intrusion, unauthorised surveillance, exploitation of minors, harmful instructions, or infringement of third-party rights.</li>
+                        <li>You must not submit content that you do not have the right to use, disclose, process, or transfer.</li>
+                        <li>You should not submit highly sensitive personal data, confidential information, trade secrets, protected health information, payment card data, government identifiers, export-controlled data, or material subject to special secrecy duties unless you have independently determined that doing so is lawful and appropriate.</li>
+                    </ul>
+                </div>
+                <div class="chat-consent-section">
+                    <h4>4. Logging, monitoring, security, and authentication</h4>
+                    <ul class="chat-consent-list">
+                        <li>You acknowledge and agree that chat prompts, outputs, attachments, attachment metadata, timestamps, device/browser information, session identifiers, IP-derived or network identifiers, security events, and related usage logs may be collected, reviewed, stored, and used for safety, abuse prevention, fraud prevention, troubleshooting, analytics, quality control, audit, compliance, legal defence, and service improvement.</li>
+                        <li>You also acknowledge and agree that session logs and related technical records may be used where reasonably necessary to verify account access, investigate suspicious activity, maintain session continuity, confirm the legitimacy of a request, protect the platform, or support authentication and security controls.</li>
+                        <li>Automated and human review may be used where appropriate for moderation, support, investigation, dispute handling, or legal obligations.</li>
+                        <li>By continuing, you consent to this processing as described here and in the full Terms &amp; Conditions.</li>
+                    </ul>
+                </div>
+                <div class="chat-consent-section">
+                    <h4>5. Liability, warranties, and jurisdiction notes</h4>
+                    <ul class="chat-consent-list">
+                        <li>To the fullest extent permitted by applicable law, the AI chat is provided on an “as is” and “as available” basis without warranties of accuracy, merchantability, fitness for a particular purpose, non-infringement, uninterrupted operation, or error-free performance.</li>
+                        <li>To the fullest extent permitted by applicable law, NanoTech Hub disclaims liability for losses arising from use of, inability to use, or reliance on AI outputs, including indirect, incidental, special, consequential, business, reputational, data, operational, or financial losses.</li>
+                        <li>These disclosures are presented with UK law first, followed by EU/EEA and USA references, because UK law governs the website terms, while mandatory non-excludable rights that apply under EU/EEA or USA law, if any, remain preserved to the extent required by law.</li>
+                    </ul>
+                </div>
+                <div class="chat-consent-section">
+                    <h4>6. UK, EU/EEA, USA, Canada, and International disclosures</h4>
+                    <ul class="chat-consent-list">
+                        <li><strong>UK:</strong> The website terms are governed by the laws of the United Kingdom. Nothing in this popup is intended to exclude liability that cannot lawfully be excluded under applicable UK law, but you acknowledge that extensive disclaimers, limitations, logging, moderation, and acceptable-use controls apply to this AI feature.</li>
+                        <li><strong>EU/EEA:</strong> If EU or EEA data protection or consumer rules apply to your use, you acknowledge that the AI system may process personal data and interaction logs as described, and you agree not to rely on AI output as a substitute for regulated, professional, or legally required review.</li>
+                        <li><strong>USA:</strong> If U.S. federal or state law applies, you acknowledge that the AI feature is offered for informational purposes, not as professional advice or guaranteed factual output, and that use of the service remains subject to logging, safety review, platform security, and dispute-defence recordkeeping.</li>
+                        <li><strong>Canada:</strong> If Canadian federal or provincial law applies, you acknowledge that the AI feature is intended to be used in a careful, transparent, and security-conscious manner, that outputs require independent verification, and that logs and technical records may be processed for safety, support, fraud prevention, and account-security purposes as described in these Terms.</li>
+                        <li><strong>International:</strong> If you access the AI feature from any other jurisdiction, you are responsible for ensuring that your use, submissions, exports, disclosures, and reliance are lawful in that jurisdiction. You acknowledge that cross-border processing, hosting, security review, and record retention may occur subject to applicable law and operational necessity.</li>
+                    </ul>
+                </div>
+            </div>
+            <label class="chat-consent-check">
+                <input type="checkbox" id="chat-consent-checkbox">
+                <span>I confirm that I have read and agree to the <a href="/terms.html#ai-chat-assistant" target="_blank" rel="noopener noreferrer">AI Chat Terms &amp; Conditions</a>, including the notices about logging, monitoring, security review, storage, and use of session records for platform protection and authentication-related purposes where reasonably necessary.</span>
+            </label>
+            <div class="chat-consent-actions">
+                <button type="button" class="chat-consent-secondary" id="chat-consent-cancel">Not now</button>
+                <button type="button" class="chat-consent-primary" id="chat-consent-agree" disabled>I agree with Terms &amp; Conditions</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="auth-overlay" id="auth-overlay">
+        <div class="auth-modal">
+            <button class="auth-modal-close" id="auth-modal-close"><i class="fas fa-times"></i></button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            <form id="login-form" class="auth-form">
+                <div class="auth-field">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div class="auth-field">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="Your password" minlength="6" autocomplete="current-password">
+                </div>
+                <div class="auth-error" id="login-error"></div>
+                <button type="submit" class="auth-submit">Login</button>
+            </form>
+            <form id="register-form" class="auth-form" style="display:none;">
+                <div class="auth-field">
+                    <label for="reg-name">Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="John Doe" autocomplete="name">
+                </div>
+                <div class="auth-field">
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" required placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div class="auth-field">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" required placeholder="Min 6 characters" minlength="6" autocomplete="new-password">
+                </div>
+                <div class="auth-field">
+                    <label for="reg-password2">Confirm Password</label>
+                    <input type="password" id="reg-password2" required placeholder="Repeat password" minlength="6" autocomplete="new-password">
+                </div>
+                <div class="auth-error" id="register-error"></div>
+                <button type="submit" class="auth-submit">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Dashboard -->
+    <div class="dashboard-overlay" id="dashboard-overlay">
+        <div class="dashboard-panel">
+            <div class="dashboard-header">
+                <h2><i class="fas fa-tachometer-alt"></i> My Dashboard</h2>
+                <button class="dashboard-close" id="dashboard-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="dashboard-user-info" id="dashboard-user-info"></div>
+            <div class="dashboard-tabs">
+                <button class="dash-tab active" data-dtab="messages"><i class="fas fa-envelope"></i> Messages</button>
+                <button class="dash-tab" data-dtab="orders"><i class="fas fa-receipt"></i> Orders</button>
+                <button class="dash-tab" data-dtab="notes"><i class="fas fa-sticky-note"></i> Notes</button>
+            </div>
+            <div class="dashboard-content">
+                <div class="dash-section active" id="dash-messages">
+                    <div class="dash-messages-list" id="dash-messages-list"></div>
+                    <form id="dash-message-form" class="dash-message-form">
+                        <input type="text" id="dash-message-input" placeholder="Write a message to admin..." required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+                <div class="dash-section" id="dash-orders">
+                    <div id="dash-orders-list" class="dash-orders-list"></div>
+                </div>
+                <div class="dash-section" id="dash-notes">
+                    <textarea id="dash-notes-text" class="dash-notes-text" placeholder="Write your notes here..."></textarea>
+                    <button id="dash-notes-save" class="dash-notes-save"><i class="fas fa-save"></i> Save Notes</button>
+                </div>
+            </div>
+            <div class="dashboard-footer">
+                <button id="dashboard-logout" class="dashboard-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Popup -->
+    <div class="payment-popup-overlay" id="payment-popup-overlay">
+        <div class="payment-popup">
+            <i class="fas fa-credit-card popup-icon"></i>
+            <h3 id="payment-popup-title">Payment via PayPal</h3>
+            <p>Please contact administration to proceed with payment.</p>
+            <p style="font-size:0.85rem;"><a href="mailto:info@nanotech.icu" style="color:var(--primary-color);font-weight:600;">info@nanotech.icu</a> &bull; +44 7593 012313</p>
+            <button class="payment-popup-close" id="payment-popup-close">Got it</button>
+        </div>
+    </div>
+
+    <script src="script.js?v=20260910-1"></script>
+</body>
+</html>
