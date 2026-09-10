@@ -1,0 +1,11 @@
+{
+  "run_number": "62",
+  "source": "/home/agent-admin/actions-runner-nanotech/_work/PW_nanotech/PW_nanotech/.deepeval/.latest_run_full.json",
+  "total": 10,
+  "passed": 6,
+  "failed": 4,
+  "metric_total": 10,
+  "metric_passed": 6,
+  "metric_failed": 4,
+  "run_duration": 0.0
+}
