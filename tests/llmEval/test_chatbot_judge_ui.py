@@ -21,6 +21,7 @@ pytestmark = [
 
 
 JUDGE = NanotechJudge()
+CHAT_TIMEOUT_MS = int(os.getenv('NANOTECH_UI_CHAT_TIMEOUT_MS', '120000'))
 BOT_MESSAGE_SELECTOR = '.chat-message.bot-message'
 BOT_CONTENT_SELECTOR = '.chat-message.bot-message .message-content'
 CHAT_INPUT_SELECTOR = (
@@ -45,12 +46,12 @@ def _send_prompt_and_get_reply(page: Page, tools: InteractiveTools, prompt: str)
     page.wait_for_function(
         "({selector, count}) => document.querySelectorAll(selector).length > count",
         arg={'selector': BOT_MESSAGE_SELECTOR, 'count': existing_messages},
-        timeout=30_000,
+        timeout=CHAT_TIMEOUT_MS,
     )
     reply = page.locator(BOT_CONTENT_SELECTOR).nth(existing_messages)
-    expect(reply).to_be_visible(timeout=30_000)
+    expect(reply).to_be_visible(timeout=CHAT_TIMEOUT_MS)
     try:
-        page.locator('.typing-indicator-msg').wait_for(state='hidden', timeout=30_000)
+        page.locator('.typing-indicator-msg').wait_for(state='hidden', timeout=CHAT_TIMEOUT_MS)
     except Exception:
         pass
     text = reply.inner_text().strip()

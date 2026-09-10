@@ -43,7 +43,9 @@ jobs:
       LOCAL_LLM_BASE_URL: http://127.0.0.1:11434/v1
       LOCAL_LLM_MODEL: gpt-oss:120b
       LOCAL_LLM_API_KEY: ollama
-      LOCAL_LLM_TIMEOUT_SEC: "180"
+      LOCAL_LLM_TIMEOUT_SEC: "300"
+      NANOTECH_API_TIMEOUT_SEC: "120"
+      NANOTECH_UI_CHAT_TIMEOUT_MS: "120000"
 
     steps:
       - name: Checkout repository
@@ -71,17 +73,28 @@ jobs:
           path: .ci-markers/deepeval.done
           key: bosgame-deepeval-${{ steps.eval_day.outputs.date }}
 
-      - name: Check local GPT-OSS availability
+      - name: Check and warm local GPT-OSS
         id: local_llm
         if: steps.daily_marker.outputs.cache-hit != 'true'
         shell: bash
         run: |
+          model_ready=false
           if models=$(curl --connect-timeout 5 --max-time 15 --fail --silent --show-error "$OLLAMA_BASE_URL/v1/models") && \
              python3 -c 'import json,sys; wanted=sys.argv[1]; data=json.load(sys.stdin); raise SystemExit(0 if any(m.get("id") == wanted for m in data.get("data", [])) else 1)' "$LOCAL_LLM_MODEL" <<<"$models"; then
+            response=$(curl --connect-timeout 5 --max-time 300 --fail --silent --show-error \
+              "$LOCAL_LLM_BASE_URL/chat/completions" \
+              -H "Authorization: Bearer $LOCAL_LLM_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{\"model\":\"$LOCAL_LLM_MODEL\",\"messages\":[{\"role\":\"user\",\"content\":\"Return JSON: {\\\"ready\\\": true}\"}],\"temperature\":0,\"max_tokens\":256,\"response_format\":{\"type\":\"json_object\"},\"stream\":false}") || true
+            if python3 -c 'import json,sys; data=json.load(sys.stdin); content=data["choices"][0]["message"].get("content", "").strip(); raise SystemExit(0 if content else 1)' <<<"$response"; then
+              model_ready=true
+            fi
+          fi
+          if [ "$model_ready" = true ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Local model unavailable; the next hourly schedule will retry."
+            echo "Local model unavailable or not producing output; the next hourly schedule will retry."
           fi
 
       - name: Nightly Bosgame — report unavailable
@@ -97,15 +110,6 @@ jobs:
           python3 .github/scripts/notify_bosgame_run_slack.py \
             --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
             --suite "DeepEval Nightly" --event up
-
-      - name: Warm up local model (up to 2 min)
-        if: steps.local_llm.outputs.run == 'true'
-        shell: bash
-        run: |
-          echo "Warming $LOCAL_LLM_MODEL (cold load ~30s; budget 150s)…"
-          curl -s --max-time 150 "$OLLAMA_BASE_URL/api/generate" \
-            -d "{\"model\":\"$LOCAL_LLM_MODEL\",\"prompt\":\"ok\",\"stream\":false,\"keep_alive\":-1,\"options\":{\"num_predict\":1}}" \
-            >/dev/null || echo "warm-up request timed out (continuing anyway)"
 
       - name: Checkout existing gh-pages site
         if: steps.local_llm.outputs.run == 'true'
@@ -130,28 +134,29 @@ jobs:
         if: steps.local_llm.outputs.run == 'true'
         run: python -m playwright install --with-deps chromium
 
-      - name: Run DeepEval smoke
+      - name: Run DeepEval smoke sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'smoke'
         id: smoke
         continue-on-error: true
         run: |
-          python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_answer_relevancy --tb=short
+          python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_chat_returns_a_meaningful_response --tb=short
 
-      - name: Run DeepEval standard 7-test suite
+      - name: Run DeepEval standard 7-test suite sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
         id: standard
         continue-on-error: true
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py --tb=short
 
-      - name: Run browser LLM judge standard 7-test suite
+      - name: Run browser LLM judge standard 7-test suite sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
         id: browser_judge
         continue-on-error: true
         env:
           RUN_LLM_EVALS: '1'
         run: |
-          python -m pytest tests/llmEval/test_chatbot_judge_ui.py --tb=short
+          python -m pytest tests/llmEval/test_chatbot_judge_ui.py \
+            --output="test-results/llm-${GITHUB_RUN_ID}" --tb=short
 
       - name: Upload DeepEval raw results
         if: always() && steps.local_llm.outputs.run == 'true'
