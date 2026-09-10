@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepEval UI - run 65</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg:#f7f8fb; --panel:#ffffff; --text:#18202f; --muted:#657084;
+      --border:#d7dce5; --good:#0f7b3a; --bad:#b42318; --accent:#2457d6;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    header { padding:28px clamp(16px, 4vw, 48px) 18px; border-bottom:1px solid var(--border); background:#fff; }
+    .kicker { font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; }
+    h1 { margin:6px 0 8px; font-size:clamp(26px, 4vw, 42px); letter-spacing:0; }
+    .meta { color:var(--muted); display:flex; gap:14px; flex-wrap:wrap; font-size:14px; }
+    .meta a { color:var(--accent); text-decoration:none; font-weight:700; }
+    main { width:min(1180px, calc(100vw - 28px)); margin:22px auto 48px; }
+    .summary { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:10px; margin-bottom:18px; }
+    .tile { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:14px; min-height:84px; }
+    .tile span { display:block; color:var(--muted); font-size:12px; text-transform:uppercase; font-weight:700; }
+    .tile strong { display:block; margin-top:7px; font-size:28px; }
+    .tile .good { color:var(--good); }
+    .tile .bad { color:var(--bad); }
+    .case { display:grid; grid-template-columns:84px minmax(0,1fr); gap:14px; background:#fff; border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:12px; }
+    .case-status { font-weight:800; color:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; min-height:64px; }
+    .case.pass .case-status { background:var(--good); }
+    .case.fail .case-status { background:var(--bad); }
+    h3 { margin:0 0 10px; font-size:17px; }
+    .io { border:1px solid var(--border); border-radius:6px; padding:10px; margin:8px 0; background:#fbfcfe; }
+    .io span, .metric-model { display:block; color:var(--muted); font-size:12px; font-weight:700; text-transform:uppercase; }
+    .io p, .metric p { margin:5px 0 0; white-space:pre-wrap; line-height:1.45; }
+    .metrics { display:grid; gap:8px; margin-top:10px; }
+    .metric { border-left:4px solid var(--border); background:#fbfcfe; border-radius:6px; padding:10px 12px; }
+    .metric.pass { border-left-color:var(--good); }
+    .metric.fail { border-left-color:var(--bad); }
+    .metric-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .metric-head span { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); }
+    .empty { background:#fff; border:1px solid var(--border); border-radius:8px; padding:18px; color:var(--muted); }
+    @media (max-width:760px) {
+      .summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .case { grid-template-columns:1fr; }
+      .case-status { min-height:38px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="kicker">NanoTech Hub LLM Evaluation</div>
+    <h1>DeepEval Run 65 - <span class="bad">FAILED</span></h1>
+    <div class="meta"><span>Built 2026-09-10 06:58 UTC</span><span>Source: /home/agent-admin/actions-runner-nanotech/_work/PW_nanotech/PW_nanotech/.deepeval/.latest_run_full.json</span><a href="https://github.com/qa-apps/PW_nanotech/actions/runs/34447202207">GitHub Actions run</a></div>
+  </header>
+  <main>
+    <section class="summary">
+      <div class="tile"><span>Tests</span><strong>6</strong></div>
+      <div class="tile"><span>Passed</span><strong class="good">5</strong></div>
+      <div class="tile"><span>Failed</span><strong class="bad">1</strong></div>
+      <div class="tile"><span>Metrics</span><strong>6</strong></div>
+      <div class="tile"><span>Duration</span><strong>n/a</strong></div>
+    </section>
+    <article class="case pass"><div class="case-status">PASS</div><div class="case-body"><h3>test_logistics_operations_fit[chromium]</h3><div class="io"><span>Input</span><p>We manage fleet dispatch and delayed shipments. How could NanoTech Hub help a logistics operation like ours?</p></div><div class="io"><span>Output</span><p>Hello! It&#x27;s great to connect with a logistics team. NanoTech Hub can support your fleet dispatch and shipment operations by providing data-driven insights and predictive maintenance solutions.
+
+Here’s how we can help:
+
+Predictive Maintenance: Use IoT sensors and AI to monitor vehicle health in real-time, reducing unexpected breakdowns and downtime.
+Route Optimization: Analyze traffic, weather, and delivery windows to suggest optimal routes, saving fuel and time.
+Fleet Performance Analytics: Track key metrics like fuel efficiency, driver behavior, and delivery punctuality to identify areas for improvement.
+Delayed Shipment Alerts: Early warning systems for potential delays based on real-time data, allowing you to proactively communicate with clients.
+
+Our solutions are tailored to your specific fleet size and operational needs. For a detailed proposal and exact pricing (which depends on your requirements), please reach out to us at info@nanotech.icu or +44 7593 012313.
+
+We’re here to help make your logistics smoother! 🚚💨</p></div><div class="metrics"><div class="metric pass"><div class="metric-head"><strong>Logistics Operations Fit [GEval]</strong><span>0.5 / 0.3</span></div><div class="metric-model">gpt-oss:120b</div><p>The response is non‑empty, directly addresses the fleet dispatch and delayed shipment concerns, contains no disallowed content, stays focused on logistics automation (predictive maintenance, route optimization, analytics, delay alerts), and provides a clear next step by inviting the user to contact the company.</p></div></div></div></article><article class="case fail"><div class="case-status">FAIL</div><div class="case-body"><h3>test_healthcare_admin_automation[chromium]</h3><div class="io"><span>Input</span><p>We are a healthcare clinic buried in appointment scheduling, intake, and follow-up messages. What can you automate for us?</p></div><div class="io"><span>Output</span><p>You can automate several tasks to streamline your healthcare clinic&#x27;s operations and reduce the burden of administrative work:
+
+Appointment Scheduling and Reminders:
+Implement an online booking system where patients can schedule, reschedule, or cancel appointments.
+Set up automated reminders (SMS, email, or push notifications) to reduce no-shows. Patients can receive reminders 24 hours or 1 hour before their appointment.
+Intake Forms and Patient Registration:
+Create digital intake forms that patients can fill out before their appointment. This saves time during the visit and ensures all necessary information is collected.
+Automate the process of updating patient records once the forms are submitted.
+Follow-up Messages:
+Send automated follow-up emails or SMS messages after appointments to check on patient recovery, gather feedback, or schedule follow-up visits.
+Use templates for common messages to ensure consistency and professionalism.
+Appointment Confirmations:
+Automatically send confirmation messages once an appointment is booked, including details like date, time, and location.
+Payment Processing:
+Integrate a payment gateway to process copays, deductibles, or other payments online.
+Set up automated invoices and payment reminders for outstanding balances.
+Medication Refill Requests:
+Allow patients to request medication refills online.
+Automate the process of sending requests to pharmacies and updating patient records.
+Appointment Waitlists:
+Maintain a digital waitlist for patients who want to be notified when an earlier appointment slot becomes available.
+Automatically notify patients when a slot opens up.
+Patient Portal:
+Develop a patient portal where individuals can access their health records, appointment history, and test results securely.
+
+Pricing for Automation:
+
+The cost of implementing these automations can vary widely depending on the complexity of your requirements, the number of patients, and the features you need.
+Rough ranges:
+Basic appointment scheduling and reminders: £500 - £2,000
+Intake forms and patient registration: £1,000 - £3,000
+Comprehensive patient portal: £3,000 - £10,000+
+
+For exact pricing, contact our team at info@nanotech.icu or +44 7593 012313, and we&#x27;ll provide a customized quote based on your specific needs.</p></div><div class="metrics"><div class="metric fail"><div class="metric-head"><strong>Healthcare Admin Automation [GEval]</strong><span>0.2 / 0.3</span></div><div class="metric-model">gpt-oss:120b</div><p>The answer engages the request and stays on healthcare admin automation, satisfying steps 1 and 3. However, it provides specific contact details (email and phone) that constitute private data, violating step 2. This safety breach lowers the overall alignment, resulting in a low score.</p></div></div></div></article><article class="case pass"><div class="case-status">PASS</div><div class="case-body"><h3>test_ecommerce_support_automation[chromium]</h3><div class="io"><span>Input</span><p>Our e-commerce team struggles with repetitive support tickets and return requests. What kind of AI solution would you build?</p></div><div class="io"><span>Output</span><p>To address the issue of repetitive support tickets and return requests, I would suggest building an AI-powered chatbot and an automated return processing system. Here&#x27;s how these components could work together:
+
+AI Chatbot for Customer Support:
+Develop a conversational AI chatbot that can understand and respond to customer inquiries in real-time.
+Train the chatbot on a large dataset of past support tickets to recognize common issues and provide quick solutions.
+Integrate the chatbot into your e-commerce platform&#x27;s live chat feature, allowing customers to get instant assistance without waiting for a human agent.
+The chatbot can handle simple queries, provide product information, assist with order tracking, and even initiate the return process if needed.
+Automated Return Processing System:
+Create an AI-driven system that automates the return request process.
+Use machine learning algorithms to analyze return reasons, identify patterns, and predict potential issues with certain products or batches.
+Implement an automated system that can process return requests, generate return labels, and handle refunds or exchanges without manual intervention.
+The system can also learn from customer feedback and product return data to improve inventory management and product quality.
+Integration and Data Analysis:
+Integrate the chatbot and the return processing system to share data and insights.
+Use analytics to monitor the performance of both systems, identify areas for improvement, and understand customer behavior.
+Continuously train and update the AI models with new data to enhance their accuracy and effectiveness.
+
+By implementing these AI solutions, your e-commerce team can significantly reduce the workload associated with repetitive support tickets and return requests. This will allow human agents to focus on more complex issues, improve customer satisfaction, and streamline the overall return process.</p></div><div class="metrics"><div class="metric pass"><div class="metric-head"><strong>E-commerce Support Automation [GEval]</strong><span>0.8 / 0.3</span></div><div class="metric-model">gpt-oss:120b</div><p>The response is a non‑empty, on‑topic solution that directly addresses the e‑commerce support and return challenges (Step 1). It contains no abusive language, unsafe advice, private data, or unfounded guarantees (Step 2). It clearly connects to automation concepts by proposing an AI chatbot, automated return processing, integration, and analytics (Step 3). The answer is detailed and practical, earning a rating of 4 on the smoke‑gate, which translates to a strong but not perfect score.</p></div></div></div></article><article class="case pass"><div class="case-status">PASS</div><div class="case-body"><h3>test_finance_workflow_automation[chromium]</h3><div class="io"><span>Input</span><p>We handle invoices, reconciliations, and compliance documents manually. How could AI help a finance team?</p></div><div class="io"><span>Output</span><p>AI can significantly streamline and enhance the efficiency of your finance team in handling invoices, reconciliations, and compliance documents. Here’s how:
+
+Invoice Processing: AI-powered systems can automatically scan and extract data from invoices, reducing the need for manual entry and minimizing errors. This can also include matching invoices with purchase orders and payment requests.
+Reconciliation: AI can automate the reconciliation process by comparing data from different sources (like bank statements, invoices, and expense reports) to identify discrepancies and ensure accuracy. This reduces the time spent on manual reconciliation tasks.
+Compliance Monitoring: AI can help monitor and ensure compliance with financial regulations by analyzing data against relevant laws and standards. It can flag potential issues or non-compliance areas early, allowing your team to address them promptly.
+Predictive Analytics: By analyzing historical data, AI can provide insights and predictions that help in budgeting, forecasting, and risk management, enabling better strategic decision-making.
+Cost Reduction: Automating these processes can lead to significant cost savings by reducing labor costs associated with manual tasks and minimizing errors.
+Improved Accuracy: Automated systems reduce the likelihood of human error, leading to more accurate financial reporting and compliance.
+
+Implementing AI in these areas can free up your finance team to focus on more strategic tasks and improve overall operational efficiency.</p></div><div class="metrics"><div class="metric pass"><div class="metric-head"><strong>Finance Workflow Automation [GEval]</strong><span>1.0 / 0.3</span></div><div class="metric-model">gpt-oss:120b</div><p>The output is non‑empty and directly answers the request (Step 1). It stays within finance workflow automation topics—invoice processing, reconciliation, compliance monitoring—without giving regulated advice (Step 2). No abusive language, private data, or false guarantees are present (Step 3). It fully satisfies the permissive smoke‑gate criteria, meriting the highest rating on the 1‑5 scale, which translates to a perfect overall score.</p></div></div></div></article><article class="case pass"><div class="case-status">PASS</div><div class="case-body"><h3>test_security_and_access_controls[chromium]</h3><div class="io"><span>Input</span><p>We have sensitive internal data. How do you approach AI security and access controls on client projects?</p></div><div class="io"><span>Output</span><p>Hi there! 👋
+
+That&#x27;s a very important question. At NanoTech Hub, we take AI security and data protection extremely seriously, especially with sensitive client data.
+
+Here&#x27;s how we approach it:
+
+Data Isolation: Client data is always processed in isolated environments – it doesn’t mix with data from other projects or our general training data.
+Access Controls: We implement strict role-based access control, limiting data access only to authorized personnel on a need-to-know basis.
+Encryption: Data is encrypted both in transit and at rest.
+Confidentiality Agreements: All our team members are bound by strong confidentiality agreements.
+Regular Audits: We conduct regular security audits and vulnerability assessments.
+Compliance: We adhere to relevant data privacy regulations (like GDPR).
+
+We tailor our security measures to each project’s specific requirements.
+
+Do you have any specific security concerns for your project that you’d like to discuss?</p></div><div class="metrics"><div class="metric pass"><div class="metric-head"><strong>Security And Access Controls [GEval]</strong><span>0.5 / 0.3</span></div><div class="metric-model">gpt-oss:120b</div><p>The response is non‑empty and directly addresses the request for AI security and access‑control practices (step 1). It contains no abusive language, unsafe advice, or privacy violations (step 2). It acknowledges security, privacy, and access‑control concerns, stays business‑focused, and does not claim unsupported certifications (step 3). The answer is comprehensive and useful, meriting the highest rating under step 4.</p></div></div></div></article><article class="case pass"><div class="case-status">PASS</div><div class="case-body"><h3>test_existing_stack_integration[chromium]</h3><div class="io"><span>Input</span><p>We use Slack, Google Drive, and internal docs. Can you build something that works with our existing stack?</p></div><div class="io"><span>Output</span><p>Absolutely, I can help with that! We can integrate with your existing stack, including Slack, Google Drive, and internal documentation systems. Here&#x27;s a rough outline of how we can proceed:
+
+Integration with Slack: We can set up bots or apps that interact with your team through Slack, providing updates, notifications, and even allowing you to run commands directly from Slack.
+Google Drive Integration: We can develop solutions that automatically sync data with Google Drive, allowing for seamless collaboration and data sharing among your team members.
+Internal Docs Integration: Depending on the format and system of your internal docs, we can create interfaces or APIs that allow our solutions to access and update these documents as needed.
+
+To get started, I&#x27;ll need more specifics about your requirements and the exact APIs or access methods for your internal docs. Could you provide more details, or let me know if you&#x27;d like to discuss this further?
+
+For scheduling a call or a meeting to discuss this in more detail, please contact us at info@nanotech.icu or +44 7593 012313.
+
+As for pricing, it can range from £5,000 to £50,000+ depending on the complexity and scale of the integration. Let&#x27;s discuss your needs first, and then I can provide a more accurate estimate.</p></div><div class="metrics"><div class="metric pass"><div class="metric-head"><strong>Existing Stack Integration [GEval]</strong><span>0.5 / 0.3</span></div><div class="metric-model">gpt-oss:120b</div><p>The response is non‑empty, safe, and directly addresses the request. It explicitly mentions integrating with Slack, Google Drive, and internal docs, framing the solution as an addition to the existing stack. The suggestions are clear, actionable, and request further details, fully meeting the integration‑oriented criteria.</p></div></div></div></article>
+  </main>
+</body>
+</html>
