@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh the NanoTech free-model pool every 60 hours
+
+[Timer]
+OnBootSec=15min
+OnUnitInactiveSec=60h
+RandomizedDelaySec=45min
+Persistent=true
+Unit=nanotech-model-curator.service
+
+[Install]
+WantedBy=timers.target
