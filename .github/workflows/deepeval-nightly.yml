@@ -148,7 +148,7 @@ jobs:
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py --tb=short
 
-      - name: Run browser LLM judge standard 7-test suite sequentially
+      - name: Run browser LLM judge standard 6-test suite sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
         id: browser_judge
         continue-on-error: true

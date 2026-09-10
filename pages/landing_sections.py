@@ -1,5 +1,9 @@
+import os
 import re
 from playwright.sync_api import Page, expect
+
+
+NAVIGATION_TIMEOUT_MS = int(os.getenv('NANOTECH_NAVIGATION_TIMEOUT_MS', '30000'))
 
 class LandingSections:
     def __init__(self, page: Page):
@@ -7,7 +11,11 @@ class LandingSections:
 
     # Home / General
     def goto_home(self, anchor: str = ''):
-        self.page.goto(f'/{anchor}')
+        self.page.goto(
+            f'/{anchor}',
+            wait_until='domcontentloaded',
+            timeout=NAVIGATION_TIMEOUT_MS,
+        )
 
     # Hero Section
     def expect_hero_visible(self):
