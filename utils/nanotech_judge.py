@@ -28,6 +28,7 @@ class NanotechJudge(DeepEvalBaseLLM):
         self.max_attempts = int(os.getenv('NANOTECH_LLM_MAX_ATTEMPTS', '3'))
         self.retry_base_delay = float(os.getenv('NANOTECH_LLM_RETRY_BASE_DELAY', '2.0'))
         self.request_pause = float(os.getenv('NANOTECH_LLM_REQUEST_PAUSE', '0.5'))
+        self.priority_max_wait = max(0, int(os.getenv('LOCAL_LLM_PRIORITY_MAX_WAIT_SEC', '0')))
 
     def get_model_name(self) -> str:
         return self._last_model or self.model
@@ -48,7 +49,10 @@ class NanotechJudge(DeepEvalBaseLLM):
                 return reply
         headers = {'Authorization': f'Bearer {self.api_key}'}
         with httpx.Client(base_url=self.base_url, timeout=self.timeout, headers=headers) as client:
-            for attempt in range(1, self.max_attempts + 1):
+            attempt = 0
+            priority_deadline = time.monotonic() + self.priority_max_wait
+            while True:
+                attempt += 1
                 try:
                     resp = client.post(
                         '/chat/completions',
@@ -61,8 +65,10 @@ class NanotechJudge(DeepEvalBaseLLM):
                             'stream': False,
                         },
                     )
-                    if resp.status_code in _RETRYABLE_STATUSES and attempt < self.max_attempts:
-                        time.sleep(self.retry_base_delay * attempt)
+                    priority_retry = resp.status_code == 503 and time.monotonic() < priority_deadline
+                    if resp.status_code in _RETRYABLE_STATUSES and (attempt < self.max_attempts or priority_retry):
+                        delay = 5.0 if priority_retry else self.retry_base_delay * attempt
+                        time.sleep(min(delay, max(0.0, priority_deadline - time.monotonic())) if priority_retry else delay)
                         continue
                     if resp.status_code != 200:
                         return None
@@ -78,9 +84,11 @@ class NanotechJudge(DeepEvalBaseLLM):
                     time.sleep(self.request_pause)
                     return reply
                 except (httpx.HTTPError, KeyError, ValueError):
-                    if attempt == self.max_attempts:
+                    priority_retry = time.monotonic() < priority_deadline
+                    if attempt >= self.max_attempts and not priority_retry:
                         return None
-                    time.sleep(self.retry_base_delay * attempt)
+                    delay = 5.0 if priority_retry else self.retry_base_delay * attempt
+                    time.sleep(min(delay, max(0.0, priority_deadline - time.monotonic())) if priority_retry else delay)
         return None
 
     def generate(self, prompt: str, **kwargs) -> str:
