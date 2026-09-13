@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: qa-apps/PW_alexpavsky
-          ref: 2b37df5bb648b8d04b0672f694bde030110c08c9
+          ref: 7b7a2fd576cd75e24dfe8975c6931ca795e0cb89
           path: agent-control
 
       - name: Checkout failed Nanotech commit
