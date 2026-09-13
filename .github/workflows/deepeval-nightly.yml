@@ -86,6 +86,8 @@ jobs:
               "$LOCAL_LLM_BASE_URL/chat/completions" \
               -H "Authorization: Bearer $LOCAL_LLM_API_KEY" \
               -H "Content-Type: application/json" \
+              -H "X-LLM-Job-ID: $GITHUB_RUN_ID" \
+              -H "X-LLM-Model: gpt-oss:120b" \
               -d "{\"model\":\"$LOCAL_LLM_MODEL\",\"messages\":[{\"role\":\"user\",\"content\":\"Return JSON: {\\\"ready\\\": true}\"}],\"temperature\":0,\"max_tokens\":256,\"response_format\":{\"type\":\"json_object\"},\"stream\":false}") || true
             if python3 -c 'import json,sys; data=json.load(sys.stdin); content=data["choices"][0]["message"].get("content", "").strip(); raise SystemExit(0 if content else 1)' <<<"$response"; then
               model_ready=true
@@ -241,3 +243,10 @@ jobs:
              [ "${{ steps.browser_judge.outcome }}" = "failure" ]; then
             exit 1
           fi
+
+      - name: Release background model lease
+        if: always() && github.event_name == 'schedule'
+        run: |
+          curl -fsS -X POST \
+            -H "X-LLM-Job-ID: $GITHUB_RUN_ID" \
+            http://127.0.0.1:11443/release/background || true
