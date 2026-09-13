@@ -17,9 +17,14 @@ on:
         required: false
         type: boolean
         default: true
+      reviewer_smoke:
+        description: "Call local, OpenAI, and DeepSeek reviewers without creating a PR"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
-  group: nanotech-auto-fix-${{ github.event.workflow_run.id || inputs.failed_run_id }}
+  group: nanotech-auto-fix-${{ github.event.workflow_run.id || inputs.failed_run_id }}-${{ inputs.reviewer_smoke || false }}
   cancel-in-progress: false
 
 permissions:
@@ -51,6 +56,7 @@ jobs:
           EVENT_PIPELINE: ${{ github.event.workflow_run.name }}
           EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           EVENT_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          REVIEWER_SMOKE: ${{ inputs.reviewer_smoke }}
         shell: bash
         run: |
           run_id="$EVENT_RUN_ID"
@@ -72,7 +78,9 @@ jobs:
 
           should_run=false
           needs_human=false
-          if [[ "$conclusion" == "failure" ]]; then
+          if [[ "$EVENT_NAME" == "workflow_dispatch" && "$REVIEWER_SMOKE" == "true" ]]; then
+            should_run=true
+          elif [[ "$conclusion" == "failure" ]]; then
             if [[ "$EVENT_NAME" == "workflow_dispatch" || "$head_branch" == "main" ]]; then
               should_run=true
             else
@@ -225,6 +233,7 @@ jobs:
           HEAD_BRANCH: ${{ needs.gate.outputs.head_branch }}
           DEFAULT_BRANCH: main
           AUTO_MERGE: ${{ github.event_name != 'workflow_dispatch' || inputs.auto_merge }}
+          REVIEWER_SMOKE: ${{ inputs.reviewer_smoke || false }}
           NANOTECH_TEST_EMAIL: ${{ secrets.NANOTECH_TEST_EMAIL }}
           NANOTECH_TEST_PASSWORD: ${{ secrets.NANOTECH_TEST_PASSWORD }}
           LOCAL_LLM_API_KEY: ollama
