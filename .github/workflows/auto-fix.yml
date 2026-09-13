@@ -1,0 +1,249 @@
+name: Auto-fix Agent
+
+on:
+  workflow_run:
+    workflows:
+      - "Playwright CI"
+      - "DeepEval Nightly"
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      failed_run_id:
+        description: "Failed GitHub Actions run ID to investigate"
+        required: true
+        type: string
+      auto_merge:
+        description: "Allow merge after all local and cloud gates pass"
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: nanotech-auto-fix-${{ github.event.workflow_run.id || inputs.failed_run_id }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.decide.outputs.should_run }}
+      needs_human: ${{ steps.decide.outputs.needs_human }}
+      run_id: ${{ steps.decide.outputs.run_id }}
+      run_url: ${{ steps.decide.outputs.run_url }}
+      pipeline: ${{ steps.decide.outputs.pipeline }}
+      head_sha: ${{ steps.decide.outputs.head_sha }}
+      head_branch: ${{ steps.decide.outputs.head_branch }}
+    steps:
+      - id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          INPUT_RUN_ID: ${{ inputs.failed_run_id }}
+          EVENT_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          EVENT_RUN_URL: ${{ github.event.workflow_run.html_url }}
+          EVENT_PIPELINE: ${{ github.event.workflow_run.name }}
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          EVENT_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        shell: bash
+        run: |
+          run_id="$EVENT_RUN_ID"
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            run_id="$INPUT_RUN_ID"
+            data=$(gh api "repos/${{ github.repository }}/actions/runs/$run_id")
+            conclusion=$(jq -r '.conclusion // ""' <<<"$data")
+            run_url=$(jq -r '.html_url' <<<"$data")
+            pipeline=$(jq -r '.name' <<<"$data")
+            head_sha=$(jq -r '.head_sha' <<<"$data")
+            head_branch=$(jq -r '.head_branch' <<<"$data")
+          else
+            conclusion="$EVENT_CONCLUSION"
+            run_url="$EVENT_RUN_URL"
+            pipeline="$EVENT_PIPELINE"
+            head_sha="$EVENT_HEAD_SHA"
+            head_branch="$EVENT_HEAD_BRANCH"
+          fi
+
+          should_run=false
+          needs_human=false
+          if [[ "$conclusion" == "failure" ]]; then
+            if [[ "$EVENT_NAME" == "workflow_dispatch" || "$head_branch" == "main" ]]; then
+              should_run=true
+            else
+              needs_human=true
+            fi
+          fi
+          {
+            echo "should_run=$should_run"
+            echo "needs_human=$needs_human"
+            echo "run_id=$run_id"
+            echo "run_url=$run_url"
+            echo "pipeline=$pipeline"
+            echo "head_sha=$head_sha"
+            echo "head_branch=$head_branch"
+          } >> "$GITHUB_OUTPUT"
+
+  human-review-nondefault:
+    needs: gate
+    if: needs.gate.outputs.needs_human == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Route untrusted branch failure to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PIPELINE: ${{ needs.gate.outputs.pipeline }}
+          RUN_URL: ${{ needs.gate.outputs.run_url }}
+          HEAD_BRANCH: ${{ needs.gate.outputs.head_branch }}
+        shell: bash
+        run: |
+          payload=$(jq -n --arg text ":octagonal_sign: *Human review required - $PIPELINE*\nFailure came from untrusted branch \`$HEAD_BRANCH\`. Agent code and artifacts were not executed.\n$RUN_URL" '{text:$text}')
+          curl --fail-with-body --silent --show-error \
+            -H "Content-Type: application/json" --data "$payload" "$SLACK_WEBHOOK_URL"
+
+  auto-fix:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
+    runs-on: [self-hosted, Linux, X64, bosgame]
+    timeout-minutes: 90
+    steps:
+      - name: Checkout trusted central agent control code
+        uses: actions/checkout@v5
+        with:
+          repository: qa-apps/PW_alexpavsky
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'codex/slack-report-refresh-20260913' || 'master' }}
+          path: agent-control
+
+      - name: Checkout failed Nanotech commit
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.gate.outputs.head_sha }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: target
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Nanotech test dependencies
+        working-directory: target
+        env:
+          PLAYWRIGHT_HOST_PLATFORM_OVERRIDE: ubuntu24.04-x64
+        run: |
+          python -m pip install -r requirements.txt
+          python -m playwright install chromium
+
+      - name: Configure git
+        working-directory: target
+        run: |
+          git config user.email "qa-apps@users.noreply.github.com"
+          git config user.name "qa-apps agent-fix"
+
+      - name: Download failed-run artifacts
+        uses: actions/github-script@v8
+        env:
+          FAILED_RUN_ID: ${{ needs.gate.outputs.run_id }}
+        with:
+          script: |
+            const runId = Number(process.env.FAILED_RUN_ID);
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+            });
+            const fs = require('fs');
+            const path = require('path');
+            const destination = path.join(process.env.GITHUB_WORKSPACE, 'target');
+            for (const artifact of artifacts.data.artifacts) {
+              if (['test-results', 'deepeval-results', 'llm-browser-failures'].some(
+                name => artifact.name.includes(name))) {
+                const zip = await github.rest.actions.downloadArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                  archive_format: 'zip',
+                });
+                fs.writeFileSync(
+                  path.join(destination, `${artifact.name}.zip`),
+                  Buffer.from(zip.data),
+                );
+              }
+            }
+
+      - name: Extract artifacts
+        working-directory: target
+        shell: bash
+        run: |
+          shopt -s nullglob
+          for file in *.zip; do
+            unzip -o "$file" -d "${file%.zip}/"
+          done
+
+      - name: Wait for and warm local repair model
+        env:
+          OLLAMA_BASE_URL: http://127.0.0.1:11434
+          LOCAL_LLM_MODEL: orcarouter/Qwen3.8-27B-Uncensored:q5_K_M
+        shell: bash
+        run: |
+          for attempt in {1..20}; do
+            if curl --fail --silent --max-time 10 "$OLLAMA_BASE_URL/v1/models" | \
+              python3 -c 'import json,sys; wanted=sys.argv[1]; data=json.load(sys.stdin); raise SystemExit(0 if any(m.get("id") == wanted for m in data.get("data", [])) else 1)' "$LOCAL_LLM_MODEL"; then
+              break
+            fi
+            if [[ "$attempt" == "20" ]]; then
+              echo "Required local model was not available after 5 minutes."
+              exit 1
+            fi
+            sleep 15
+          done
+          while IFS= read -r resident; do
+            [[ -z "$resident" || "$resident" == "$LOCAL_LLM_MODEL" ]] && continue
+            curl --fail --silent --max-time 60 "$OLLAMA_BASE_URL/api/generate" \
+              -d "$(jq -n --arg model "$resident" '{model:$model,keep_alive:0}')" >/dev/null
+          done < <(curl --fail --silent --max-time 15 "$OLLAMA_BASE_URL/api/ps" | jq -r '.models[].name // empty')
+          payload=$(jq -n --arg model "$LOCAL_LLM_MODEL" '{model:$model,prompt:"ok",stream:false,keep_alive:"15m",options:{num_predict:1}}')
+          curl --fail --show-error --silent --max-time 600 \
+            "$OLLAMA_BASE_URL/api/generate" -d "$payload" >/dev/null
+
+      - name: Run guarded auto-fix agent
+        working-directory: target
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          FAILED_RUN_ID: ${{ needs.gate.outputs.run_id }}
+          FAILED_RUN_URL: ${{ needs.gate.outputs.run_url }}
+          PIPELINE: ${{ needs.gate.outputs.pipeline }}
+          HEAD_SHA: ${{ needs.gate.outputs.head_sha }}
+          HEAD_BRANCH: ${{ needs.gate.outputs.head_branch }}
+          DEFAULT_BRANCH: main
+          AUTO_MERGE: ${{ github.event_name != 'workflow_dispatch' || inputs.auto_merge }}
+          NANOTECH_TEST_EMAIL: ${{ secrets.NANOTECH_TEST_EMAIL }}
+          NANOTECH_TEST_PASSWORD: ${{ secrets.NANOTECH_TEST_PASSWORD }}
+          LOCAL_LLM_API_KEY: ollama
+          LOCAL_LLM_BASE_URL: http://127.0.0.1:11434/v1
+          LOCAL_LLM_MODEL: orcarouter/Qwen3.8-27B-Uncensored:q5_K_M
+          LOCAL_LLM_REASONING_EFFORT: low
+          LOCAL_LLM_TIMEOUT_SEC: "180"
+          FINAL_SMART_MODEL: gpt-5.1
+          FINAL_CHEAP_MODEL: deepseek/deepseek-v4.1-flash
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python3 ../agent-control/.github/scripts/auto_fix_agent.py
+
+      - name: Upload agent decision trail
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: nanotech-agent-fix-report-${{ needs.gate.outputs.run_id }}
+          path: target/agent-fix-report.json
+          retention-days: 30
+          if-no-files-found: warn
