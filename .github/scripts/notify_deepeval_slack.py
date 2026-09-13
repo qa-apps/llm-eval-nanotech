@@ -83,7 +83,13 @@ def _post_json(url: str, payload: dict[str, Any], token: str = "") -> dict[str, 
         return {"ok": True, "raw": body}
 
 
-def _block_payload(channel: str, data: dict[str, Any], dashboard_url: str, run_url: str) -> dict[str, Any]:
+def _block_payload(
+    channel: str,
+    data: dict[str, Any],
+    dashboard_url: str,
+    run_url: str,
+    local_ui_url: str = "",
+) -> dict[str, Any]:
     summary = _summary(data)
     failed = summary["failed"]
     icon = "FAILED" if failed else ("PASSED" if summary["total"] else "NO RESULTS")
@@ -104,9 +110,15 @@ def _block_payload(channel: str, data: dict[str, Any], dashboard_url: str, run_u
     if dashboard_url:
         actions.append({
             "type": "button",
-            "text": {"type": "plain_text", "text": "Open DeepEval UI", "emoji": True},
+            "text": {"type": "plain_text", "text": "Open DeepEval GitHub UI", "emoji": True},
             "url": dashboard_url,
             "style": "primary" if not failed else "danger",
+        })
+    if local_ui_url:
+        actions.append({
+            "type": "button",
+            "text": {"type": "plain_text", "text": "Open DeepEval Local UI", "emoji": True},
+            "url": local_ui_url,
         })
     if run_url:
         actions.append({
@@ -127,11 +139,12 @@ def main() -> int:
     parser.add_argument("--channel", default="")
     parser.add_argument("--results-dir", default=".deepeval")
     parser.add_argument("--dashboard-url", default="")
+    parser.add_argument("--local-ui-url", default=os.environ.get("DEEPEVAL_LOCAL_UI_URL", ""))
     args = parser.parse_args()
 
     data = _load(_latest_result(Path(args.results_dir)) or Path(""))
     run_url = os.environ.get("GITHUB_RUN_URL", "")
-    payload = _block_payload(args.channel, data, args.dashboard_url, run_url)
+    payload = _block_payload(args.channel, data, args.dashboard_url, run_url, args.local_ui_url)
 
     token = os.environ.get("SLACK_BOT_TOKEN", "")
     if token and args.channel:
