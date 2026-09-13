@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: qa-apps/PW_alexpavsky
-          ref: ${{ github.event_name == 'workflow_dispatch' && 'codex/slack-report-refresh-20260913' || 'master' }}
+          ref: 721082e979a7e804fde17f76d0f9790a805e5300
           path: agent-control
 
       - name: Checkout failed Nanotech commit
