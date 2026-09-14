@@ -185,19 +185,15 @@ jobs:
           RUN_URL: ${{ env.RUN_URL }}
         run: python scripts/build_deepeval_site.py
 
-      - name: Publish DeepEval Pages UI
+      - name: Upload Pages site for isolated publisher
+        id: upload_pages
         if: always() && steps.local_llm.outputs.run == 'true'
-        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./gh-pages-site
-          force_orphan: false
-          keep_files: true
-          enable_jekyll: false
-          commit_message: "deepeval site: run #${{ github.run_number }}"
-          user_name: "github-actions[bot]"
-          user_email: "github-actions[bot]@users.noreply.github.com"
+          name: deepeval-pages-${{ github.run_id }}
+          path: gh-pages-site/
+          retention-days: 1
+          if-no-files-found: error
 
       - name: Notify Slack
         if: always() && steps.local_llm.outputs.run == 'true'
@@ -249,3 +245,33 @@ jobs:
           curl -fsS -X POST \
             -H "X-LLM-Job-ID: $GITHUB_RUN_ID" \
             http://127.0.0.1:11443/release/background || true
+
+  publish-deepeval-pages:
+    name: Publish Pages from GitHub-hosted runner
+    if: always()
+    needs: deepeval
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download generated Pages site
+        id: download_pages
+        continue-on-error: true
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: deepeval-pages-${{ github.run_id }}
+          path: gh-pages-site
+
+      - name: Publish Pages site
+        if: steps.download_pages.outcome == 'success'
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./gh-pages-site
+          force_orphan: false
+          keep_files: true
+          enable_jekyll: false
+          commit_message: "deepeval site: run #${{ github.run_number }}"
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
