@@ -127,6 +127,7 @@ def main() -> int:
     parser.add_argument("--channel", default="")
     parser.add_argument("--results-dir", default=".deepeval")
     parser.add_argument("--dashboard-url", default="")
+    parser.add_argument("--require-delivery", action="store_true")
     args = parser.parse_args()
 
     data = _load(_latest_result(Path(args.results_dir)) or Path(""))
@@ -139,22 +140,29 @@ def main() -> int:
             _post_json("https://slack.com/api/conversations.join", {"channel": args.channel}, token=token)
         except Exception:
             pass
-        resp = _post_json("https://slack.com/api/chat.postMessage", payload, token=token)
+        try:
+            resp = _post_json("https://slack.com/api/chat.postMessage", payload, token=token)
+        except Exception as exc:
+            print(f"Slack post failed: {exc}", file=sys.stderr)
+            return 1 if args.require_delivery else 0
         if not resp.get("ok"):
             print(f"Slack post failed: {resp.get('error')}", file=sys.stderr)
-            return 1
+            return 1 if args.require_delivery else 0
         print(f"Message posted to {args.channel}")
         return 0
 
     webhook = os.environ.get("SLACK_WEBHOOK_URL", "")
     if webhook:
         payload.pop("channel", None)
-        _post_json(webhook, payload)
+        response = _post_json(webhook, payload)
+        if response.get("ok") is False:
+            print(f"Slack webhook failed: {response.get('error')}", file=sys.stderr)
+            return 1 if args.require_delivery else 0
         print("Message posted via SLACK_WEBHOOK_URL fallback")
         return 0
 
     print("No Slack token/webhook configured; skipping Slack notification", file=sys.stderr)
-    return 0
+    return 1 if args.require_delivery else 0
 
 
 if __name__ == "__main__":
