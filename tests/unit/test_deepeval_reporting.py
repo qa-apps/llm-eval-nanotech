@@ -41,6 +41,7 @@ def test_standard_workflow_collects_all_twelve_deepeval_cases():
     assert "tests/llmEval/test_chatbot_deepeval.py \\" in workflow
     assert "tests/llmEval/test_chatbot_judge_ui.py \\" in workflow
     assert "EXPECTED_CASES: ${{ steps.eval_day.outputs.scope == 'smoke' && '1' || '12' }}" in workflow
+    assert "does not match " in workflow and "complete report quality verdict" in workflow
 
     api_suite = (ROOT / "tests/llmEval/test_chatbot_deepeval.py").read_text(encoding="utf-8")
     browser_suite = (ROOT / "tests/llmEval/test_chatbot_judge_ui.py").read_text(encoding="utf-8")

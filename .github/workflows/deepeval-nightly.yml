@@ -172,6 +172,9 @@ jobs:
         if: always() && steps.local_llm.outputs.run == 'true'
         env:
           EXPECTED_CASES: ${{ steps.eval_day.outputs.scope == 'smoke' && '1' || '12' }}
+          SCOPE: ${{ steps.eval_day.outputs.scope }}
+          SMOKE_OUTCOME: ${{ steps.smoke.outcome }}
+          STANDARD_OUTCOME: ${{ steps.standard.outcome }}
         run: |
           python3 - <<'PY'
           import json
@@ -197,6 +200,20 @@ jobs:
               metrics = case.get("metricsData") or []
               if not metrics or any(not metric.get("name") for metric in metrics):
                   raise SystemExit("A DeepEval case is missing judge metrics")
+              if not isinstance(case.get("success"), bool):
+                  raise SystemExit("A DeepEval case is missing its quality verdict")
+          quality_passed = all(case["success"] for case in cases)
+          outcome = (
+              os.environ["SMOKE_OUTCOME"]
+              if os.environ["SCOPE"] == "smoke"
+              else os.environ["STANDARD_OUTCOME"]
+          )
+          expected_outcome = "success" if quality_passed else "failure"
+          if outcome != expected_outcome:
+              raise SystemExit(
+                  f"DeepEval step outcome {outcome!r} does not match "
+                  f"the complete report quality verdict {expected_outcome!r}"
+              )
           print(f"Validated {len(cases)} DeepEval cases in {report_path}")
           PY
 
