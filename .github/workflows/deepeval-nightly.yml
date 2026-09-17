@@ -148,7 +148,7 @@ jobs:
 
       - name: Record DeepEval run start
         if: steps.local_llm.outputs.run == 'true'
-        run: date +%s > "$RUNNER_TEMP/deepeval-start"
+        run: python3 -c 'import os,time; from pathlib import Path; Path(os.environ["RUNNER_TEMP"]).joinpath("deepeval-start-ns").write_text(str(time.time_ns()))'
 
       - name: Run DeepEval smoke sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'smoke'
@@ -183,8 +183,8 @@ jobs:
           report_path = next((path for path in candidates if path.is_file()), None)
           if report_path is None:
               raise SystemExit("Missing DeepEval JSON report")
-          started = int(Path(os.environ["RUNNER_TEMP"]).joinpath("deepeval-start").read_text())
-          if int(report_path.stat().st_mtime) < started:
+          started = int(Path(os.environ["RUNNER_TEMP"]).joinpath("deepeval-start-ns").read_text())
+          if report_path.stat().st_mtime_ns < started:
               raise SystemExit(f"DeepEval report is stale: {report_path}")
           report = json.loads(report_path.read_text(encoding="utf-8"))
           cases = report.get("testCases") or []
