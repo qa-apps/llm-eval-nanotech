@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""Build a GitHub Pages dashboard for DeepEval results."""
+"""Build a GitHub Pages dashboard for DeepEval results.
+
+deepeval/index.html lists every published run (newest first); each run page
+links back to that list. Run pages published before the list existed get the
+back link injected on the next build.
+"""
 
 from __future__ import annotations
 
 import html
 import json
 import os
+import re
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +22,9 @@ ROOT = Path.cwd()
 DEEPEVAL_DIR = ROOT / ".deepeval"
 OUT = ROOT / "gh-pages-site"
 EXISTING = ROOT / "gh-pages-existing"
+NAV_MARKER = 'class="nav"'
+NAV_HTML = '<nav class="nav"><a href="../../index.html">&larr; All DeepEval runs</a></nav>'
+NAV_CSS = ".nav { margin-bottom:10px; font-size:14px; } .nav a { color:var(--accent); text-decoration:none; font-weight:700; }"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -143,6 +152,7 @@ def _render(data: dict[str, Any], source: str, run_number: str, run_url: str) ->
     .metric-head {{ display:flex; align-items:center; justify-content:space-between; gap:12px; }}
     .metric-head span {{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); }}
     .empty {{ background:#fff; border:1px solid var(--border); border-radius:8px; padding:18px; color:var(--muted); }}
+    {NAV_CSS}
     @media (max-width:760px) {{
       .summary {{ grid-template-columns:repeat(2, minmax(0, 1fr)); }}
       .case {{ grid-template-columns:1fr; }}
@@ -152,6 +162,7 @@ def _render(data: dict[str, Any], source: str, run_number: str, run_url: str) ->
 </head>
 <body>
   <header>
+    {NAV_HTML}
     <div class="kicker">NanoTech Hub LLM Evaluation</div>
     <h1>DeepEval Run {html.escape(run_number)} - <span class="{failed_cls}">{status}</span></h1>
     <div class="meta"><span>Built {now}</span><span>Source: {html.escape(source)}</span>{run_link}</div>
@@ -171,6 +182,90 @@ def _render(data: dict[str, Any], source: str, run_number: str, run_url: str) ->
 """
 
 
+def _built_at(run_dir: Path, summary: dict[str, Any]) -> str:
+    if summary.get("built_at"):
+        return str(summary["built_at"])
+    page = run_dir / "index.html"
+    if page.exists():
+        m = re.search(r"Built (\d{4}-\d{2}-\d{2} \d{2}:\d{2}) UTC", page.read_text(encoding="utf-8", errors="ignore"))
+        if m:
+            return m.group(1) + " UTC"
+    return ""
+
+
+def _backfill_nav(runs_root: Path) -> int:
+    """Add the back link to run pages published before it existed."""
+    patched = 0
+    for page in runs_root.glob("*/index.html"):
+        text = page.read_text(encoding="utf-8", errors="ignore")
+        if NAV_MARKER in text or "<header>" not in text:
+            continue
+        text = text.replace("<header>", "<header>\n    " + NAV_HTML, 1)
+        text = text.replace("</style>", "    " + NAV_CSS + "\n  </style>", 1)
+        page.write_text(text, encoding="utf-8")
+        patched += 1
+    return patched
+
+
+def _index_html(runs_root: Path) -> str:
+    rows = []
+    run_dirs = [d for d in runs_root.iterdir() if d.is_dir()] if runs_root.exists() else []
+
+    def key(d: Path) -> tuple[int, str]:
+        return (int(d.name), "") if d.name.isdigit() else (-1, d.name)
+
+    for run_dir in sorted(run_dirs, key=key, reverse=True):
+        summary = _load_json(run_dir / "summary.json")
+        total = int(summary.get("total") or 0)
+        failed = int(summary.get("failed") or 0)
+        status = "FAILED" if failed else ("PASSED" if total else "NO RESULTS")
+        cls = "bad" if failed else ("good" if total else "")
+        run_url = summary.get("run_url") or ""
+        gh = f'<a href="{html.escape(run_url)}">GitHub run</a>' if run_url else ""
+        rows.append(
+            f'<tr><td><a href="runs/{html.escape(run_dir.name)}/">#{html.escape(run_dir.name)}</a></td>'
+            f'<td>{html.escape(_built_at(run_dir, summary))}</td>'
+            f'<td class="{cls}">{status}</td>'
+            f'<td>{summary.get("passed", 0)}/{total}</td>'
+            f'<td>{summary.get("metric_passed", 0)}/{summary.get("metric_total", 0)}</td>'
+            f"<td>{gh}</td></tr>"
+        )
+    body = "".join(rows) or '<tr><td colspan="6">No DeepEval runs published yet.</td></tr>'
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepEval runs - NanoTech Hub</title>
+  <style>
+    body {{ margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif; background:#f7f8fb; color:#18202f; }}
+    header {{ padding:28px clamp(16px, 4vw, 48px) 18px; border-bottom:1px solid #d7dce5; background:#fff; }}
+    .kicker {{ font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:#657084; font-weight:700; }}
+    h1 {{ margin:6px 0 0; font-size:clamp(26px, 4vw, 38px); }}
+    main {{ width:min(1180px, calc(100vw - 28px)); margin:22px auto 48px; }}
+    table {{ width:100%; border-collapse:collapse; background:#fff; border:1px solid #d7dce5; border-radius:8px; overflow:hidden; }}
+    th, td {{ text-align:left; padding:10px 12px; border-bottom:1px solid #eef0f4; }}
+    th {{ background:#f3f5f9; font-size:12px; text-transform:uppercase; color:#657084; }}
+    a {{ color:#2457d6; text-decoration:none; font-weight:700; }}
+    .good {{ color:#0f7b3a; font-weight:800; }} .bad {{ color:#b42318; font-weight:800; }}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="kicker">NanoTech Hub LLM Evaluation</div>
+    <h1>All DeepEval runs ({len(rows)})</h1>
+  </header>
+  <main>
+    <table>
+      <thead><tr><th>Run</th><th>Built</th><th>Status</th><th>Tests passed</th><th>Metrics passed</th><th>Link</th></tr></thead>
+      <tbody>{body}</tbody>
+    </table>
+  </main>
+</body>
+</html>
+"""
+
+
 def main() -> int:
     if EXISTING.exists():
         shutil.copytree(EXISTING, OUT, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git"))
@@ -184,14 +279,18 @@ def main() -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
     html_text = _render(data, source, str(run_number), run_url)
     (run_dir / "index.html").write_text(html_text, encoding="utf-8")
-    (OUT / "deepeval").mkdir(parents=True, exist_ok=True)
-    (OUT / "deepeval" / "index.html").write_text(
-        '<!doctype html><meta http-equiv="refresh" content="0; url=runs/{0}/">'.format(html.escape(str(run_number))),
-        encoding="utf-8",
-    )
-    summary = {"run_number": run_number, "source": source, **_summary(data)}
+    summary = {
+        "run_number": run_number,
+        "source": source,
+        "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "run_url": run_url,
+        **_summary(data),
+    }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    print(f"Built DeepEval UI at {run_dir}")
+    runs_root = OUT / "deepeval" / "runs"
+    patched = _backfill_nav(runs_root)
+    (OUT / "deepeval" / "index.html").write_text(_index_html(runs_root), encoding="utf-8")
+    print(f"Built DeepEval UI at {run_dir} (runs list updated, {patched} older pages got the back link)")
     return 0
 
 
