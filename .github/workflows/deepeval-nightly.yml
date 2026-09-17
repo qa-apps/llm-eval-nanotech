@@ -137,8 +137,11 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Install Playwright browser
+        id: install_browser
         if: steps.local_llm.outputs.run == 'true'
-        run: python -m playwright install --with-deps chromium
+        # The hardened self-hosted runner blocks sudo. Its system libraries are
+        # preinstalled, so download the browser bundle without --with-deps.
+        run: python -m playwright install chromium
 
       - name: Run DeepEval smoke sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'smoke'
@@ -201,6 +204,7 @@ jobs:
           if-no-files-found: error
 
       - name: Notify Slack
+        id: notify_slack
         if: always() && steps.local_llm.outputs.run == 'true'
         env:
           REPO_OWNER: ${{ github.repository_owner }}
@@ -222,14 +226,26 @@ jobs:
             --format deepeval --results .deepeval
 
       - name: Save daily completion marker
-        if: always() && steps.local_llm.outputs.run == 'true' && github.event_name == 'schedule'
+        if: >-
+          always() && steps.local_llm.outputs.run == 'true' &&
+          github.event_name == 'schedule' &&
+          steps.install_browser.outcome == 'success' &&
+          steps.notify_slack.outcome == 'success' &&
+          (steps.smoke.outcome == 'success' || steps.smoke.outcome == 'failure' ||
+           steps.standard.outcome == 'success' || steps.standard.outcome == 'failure')
         shell: bash
         run: |
           mkdir -p .ci-markers
           date -u +%FT%TZ > .ci-markers/deepeval.done
 
       - name: Cache daily completion marker
-        if: always() && steps.local_llm.outputs.run == 'true' && github.event_name == 'schedule'
+        if: >-
+          always() && steps.local_llm.outputs.run == 'true' &&
+          github.event_name == 'schedule' &&
+          steps.install_browser.outcome == 'success' &&
+          steps.notify_slack.outcome == 'success' &&
+          (steps.smoke.outcome == 'success' || steps.smoke.outcome == 'failure' ||
+           steps.standard.outcome == 'success' || steps.standard.outcome == 'failure')
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: .ci-markers/deepeval.done
