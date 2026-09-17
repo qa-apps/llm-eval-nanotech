@@ -137,19 +137,24 @@ def main() -> int:
     token = os.environ.get("SLACK_BOT_TOKEN", "")
     if token and args.channel:
         try:
-            _post_json("https://slack.com/api/conversations.join", {"channel": args.channel}, token=token)
-        except Exception:
-            pass
+            join_resp = _post_json(
+                "https://slack.com/api/conversations.join",
+                {"channel": args.channel},
+                token=token,
+            )
+            if not join_resp.get("ok") and join_resp.get("error") != "already_in_channel":
+                print(f"Slack channel join failed: {join_resp.get('error')}", file=sys.stderr)
+        except Exception as exc:
+            print(f"Slack channel join failed: {exc}", file=sys.stderr)
         try:
             resp = _post_json("https://slack.com/api/chat.postMessage", payload, token=token)
         except Exception as exc:
             print(f"Slack post failed: {exc}", file=sys.stderr)
-            return 1 if args.require_delivery else 0
-        if not resp.get("ok"):
+        else:
+            if resp.get("ok"):
+                print(f"Message posted to {args.channel}")
+                return 0
             print(f"Slack post failed: {resp.get('error')}", file=sys.stderr)
-            return 1 if args.require_delivery else 0
-        print(f"Message posted to {args.channel}")
-        return 0
 
     webhook = os.environ.get("SLACK_WEBHOOK_URL", "")
     if webhook:
