@@ -33,16 +33,20 @@ jobs:
             exit 0
           fi
 
-          local_hour="$(TZ=America/New_York date +%H)"
-          if [ "$local_hour" = "22" ]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-          fi
+          # GitHub often starts scheduled runs hours late, so decide by which
+          # cron fired, not by the current hour: 10 PM New York is 02:00 UTC
+          # during EDT and 03:00 UTC during EST.
+          ny_tz="$(TZ=America/New_York date +%Z)"
+          case "${{ github.event.schedule }}|$ny_tz" in
+            "0 2 * * *|EDT"|"0 3 * * *|EST") should_run=true ;;
+            *) should_run=false ;;
+          esac
+          echo "Cron '${{ github.event.schedule }}' with New York on $ny_tz -> should_run=$should_run"
+          echo "should_run=$should_run" >> "$GITHUB_OUTPUT"
 
       - name: Skip duplicate schedule slot
         if: steps.run_window.outputs.should_run != 'true'
-        run: echo "Skipping this cron slot because it is not 10 PM in America/New_York."
+        run: echo "Skipping this cron slot (the other DST slot for 10 PM America/New_York)."
 
       - name: Checkout repository
         if: steps.run_window.outputs.should_run == 'true'
