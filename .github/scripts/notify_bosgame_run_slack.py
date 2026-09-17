@@ -82,39 +82,6 @@ def _api_get(method: str, token: str, params: dict) -> dict:
         return {"ok": False, "error": str(exc)}
 
 
-def _webhook_post(payload: dict) -> bool:
-    webhook = os.environ.get("SLACK_WEBHOOK_URL", "").strip()
-    if not webhook:
-        return False
-    webhook_payload = dict(payload)
-    webhook_payload.pop("channel", None)
-    webhook_payload.pop("thread_ts", None)
-    req = urllib.request.Request(
-        webhook,
-        data=json.dumps(webhook_payload).encode("utf-8"),
-        headers={"Content-Type": "application/json; charset=utf-8"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            body = resp.read().decode("utf-8").strip()
-        if body and body.lower() not in {"ok", "true"}:
-            try:
-                parsed = json.loads(body)
-            except json.JSONDecodeError:
-                parsed = {"ok": True}
-            if parsed.get("ok") is False:
-                print(
-                    f"[notify_bosgame] Slack webhook error: {parsed.get('error')}",
-                    file=sys.stderr,
-                )
-                return False
-        print("[notify_bosgame] message posted via SLACK_WEBHOOK_URL fallback")
-        return True
-    except urllib.error.URLError as exc:
-        print(f"[notify_bosgame] Slack webhook failed: {exc}", file=sys.stderr)
-        return False
-
-
 def resolve_channel(token: str, channel_id: str, channel_name: str) -> str | None:
     """Return a usable channel id: the given id, else find-or-create by name."""
     channel_id = (channel_id or "").strip()
@@ -178,7 +145,7 @@ def _post(channel: str, token: str, text: str, blocks=None, thread_ts=None) -> s
     body = _api_post("chat.postMessage", token, payload)
     if not body.get("ok"):
         print(f"[notify_bosgame] chat.postMessage error: {body.get('error')}", file=sys.stderr)
-        return "webhook" if _webhook_post(payload) else None
+        return None
     return body.get("ts")
 
 
@@ -367,7 +334,7 @@ def main() -> int:
             summary_text += f"\n… and {len(cases) - len(top_cases)} more; open the run for details."
     ts = _post(channel, token, summary_text, blocks=_button_blocks(summary_text, args.run_url))
     delivered = bool(ts)
-    if ts and ts != "webhook" and cases:
+    if ts and cases:
         for chunk in _detail_replies(cases):
             delivered = bool(_post(channel, token, chunk, thread_ts=ts)) and delivered
     return 0 if delivered or not args.require_delivery else 1

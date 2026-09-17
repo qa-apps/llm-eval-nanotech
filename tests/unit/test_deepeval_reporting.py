@@ -46,38 +46,6 @@ def test_token_delivery_failure_is_fatal_when_required(monkeypatch, tmp_path):
     assert notify.main() == 1
 
 
-def test_token_membership_failure_falls_back_to_webhook(monkeypatch, tmp_path):
-    notify = _load_notify_module()
-    result = tmp_path / ".latest_run_full.json"
-    result.write_text('{"testCases": []}', encoding="utf-8")
-    monkeypatch.setenv("SLACK_BOT_TOKEN", "test")
-    monkeypatch.setenv("SLACK_WEBHOOK_URL", "https://hooks.slack.test/example")
-    monkeypatch.setattr(
-        "sys.argv",
-        [
-            "notify_deepeval_slack.py",
-            "--channel", "C123",
-            "--results-dir", str(tmp_path),
-            "--require-delivery",
-        ],
-    )
-    calls = []
-
-    def fake_post(url, payload, token=""):
-        calls.append((url, dict(payload), token))
-        if url.endswith("conversations.join"):
-            return {"ok": False, "error": "missing_scope"}
-        if url.endswith("chat.postMessage"):
-            return {"ok": False, "error": "not_in_channel"}
-        return {"ok": True}
-
-    monkeypatch.setattr(notify, "_post_json", fake_post)
-
-    assert notify.main() == 0
-    assert calls[-1][0] == "https://hooks.slack.test/example"
-    assert "channel" not in calls[-1][1]
-
-
 def test_daily_notifier_joins_supplied_channel_and_enforces_delivery(monkeypatch):
     notify = _load_daily_notify_module()
     monkeypatch.setenv("SLACK_BOT_TOKEN", "test")
@@ -104,45 +72,6 @@ def test_daily_notifier_joins_supplied_channel_and_enforces_delivery(monkeypatch
 
     assert notify.main() == 1
     assert calls[0] == ("conversations.join", {"channel": "C123"})
-
-
-def test_daily_notifier_falls_back_to_webhook(monkeypatch):
-    notify = _load_daily_notify_module()
-    monkeypatch.setenv("SLACK_BOT_TOKEN", "test")
-    monkeypatch.setenv("SLACK_WEBHOOK_URL", "https://hooks.slack.test/example")
-    monkeypatch.setattr(
-        "sys.argv",
-        [
-            "notify_bosgame_run_slack.py",
-            "--channel", "C123",
-            "--suite", "DeepEval Nightly",
-            "--event", "up",
-            "--require-delivery",
-        ],
-    )
-    monkeypatch.setattr(
-        notify,
-        "_api_post",
-        lambda method, token, payload: (
-            {"ok": True}
-            if method == "conversations.join"
-            else {"ok": False, "error": "not_in_channel"}
-        ),
-    )
-
-    class FakeResponse:
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args):
-            return None
-
-        def read(self):
-            return b"ok"
-
-    monkeypatch.setattr(notify.urllib.request, "urlopen", lambda *args, **kwargs: FakeResponse())
-
-    assert notify.main() == 0
 
 
 def test_standard_workflow_collects_all_twelve_deepeval_cases():

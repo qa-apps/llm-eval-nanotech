@@ -150,11 +150,12 @@ def main() -> int:
             resp = _post_json("https://slack.com/api/chat.postMessage", payload, token=token)
         except Exception as exc:
             print(f"Slack post failed: {exc}", file=sys.stderr)
-        else:
-            if resp.get("ok"):
-                print(f"Message posted to {args.channel}")
-                return 0
+            return 1 if args.require_delivery else 0
+        if not resp.get("ok"):
             print(f"Slack post failed: {resp.get('error')}", file=sys.stderr)
+            return 1 if args.require_delivery else 0
+        print(f"Message posted to {args.channel}")
+        return 0
 
     webhook = os.environ.get("SLACK_WEBHOOK_URL", "")
     if webhook:
