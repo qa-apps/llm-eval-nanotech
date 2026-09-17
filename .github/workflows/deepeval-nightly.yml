@@ -157,28 +157,21 @@ jobs:
         run: |
           python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_chat_returns_a_meaningful_response --tb=short
 
-      - name: Run DeepEval standard 6-test suite sequentially
+      - name: Run DeepEval API and browser 12-test suite sequentially
         if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
         id: standard
         continue-on-error: true
         run: |
-          python -m pytest tests/llmEval/test_chatbot_deepeval.py --tb=short
-
-      - name: Run browser LLM judge standard 6-test suite sequentially
-        if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
-        id: browser_judge
-        continue-on-error: true
-        env:
-          RUN_LLM_EVALS: '1'
-        run: |
-          python -m pytest tests/llmEval/test_chatbot_judge_ui.py \
+          python -m pytest \
+            tests/llmEval/test_chatbot_deepeval.py \
+            tests/llmEval/test_chatbot_judge_ui.py \
             --output="test-results/llm-${GITHUB_RUN_ID}" --tb=short
 
       - name: Validate complete DeepEval report
         id: report_contract
         if: always() && steps.local_llm.outputs.run == 'true'
         env:
-          EXPECTED_CASES: ${{ steps.eval_day.outputs.scope == 'smoke' && '1' || '6' }}
+          EXPECTED_CASES: ${{ steps.eval_day.outputs.scope == 'smoke' && '1' || '12' }}
         run: |
           python3 - <<'PY'
           import json
@@ -286,7 +279,6 @@ jobs:
           SCOPE: ${{ steps.eval_day.outputs.scope }}
           SMOKE_OUTCOME: ${{ steps.smoke.outcome }}
           STANDARD_OUTCOME: ${{ steps.standard.outcome }}
-          BROWSER_JUDGE_OUTCOME: ${{ steps.browser_judge.outcome }}
         run: |
           ready=true
           for outcome in "$BROWSER_INSTALL" "$REPORT_CONTRACT" "$RESULTS_UPLOAD" "$BROWSER_EVIDENCE_UPLOAD" "$PAGES_BUILD" "$PAGES_UPLOAD" "$DEEPEVAL_SLACK" "$DAILY_SLACK"; do
@@ -296,7 +288,6 @@ jobs:
             [ "$SMOKE_OUTCOME" = "success" ] || [ "$SMOKE_OUTCOME" = "failure" ] || ready=false
           else
             [ "$STANDARD_OUTCOME" = "success" ] || [ "$STANDARD_OUTCOME" = "failure" ] || ready=false
-            [ "$BROWSER_JUDGE_OUTCOME" = "success" ] || [ "$BROWSER_JUDGE_OUTCOME" = "failure" ] || ready=false
           fi
           echo "ready=$ready" >> "$GITHUB_OUTPUT"
           [ "$ready" = "true" ] || echo "::warning::Daily marker withheld because report, artifact, Pages input, or Slack delivery was incomplete."
@@ -305,8 +296,7 @@ jobs:
         if: steps.local_llm.outputs.run == 'true'
         run: |
           if [ "${{ steps.smoke.outcome }}" = "failure" ] || \
-             [ "${{ steps.standard.outcome }}" = "failure" ] || \
-             [ "${{ steps.browser_judge.outcome }}" = "failure" ]; then
+             [ "${{ steps.standard.outcome }}" = "failure" ]; then
             exit 1
           fi
 
