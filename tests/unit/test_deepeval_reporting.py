@@ -16,11 +16,21 @@ def _load_notify_module():
     return module
 
 
+def _load_daily_notify_module():
+    path = ROOT / ".github/scripts/notify_bosgame_run_slack.py"
+    spec = importlib.util.spec_from_file_location("notify_bosgame_run_slack", path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_token_delivery_failure_is_fatal_when_required(monkeypatch, tmp_path):
     notify = _load_notify_module()
     result = tmp_path / ".latest_run_full.json"
     result.write_text('{"testCases": []}', encoding="utf-8")
     monkeypatch.setenv("SLACK_BOT_TOKEN", "test")
+    monkeypatch.delenv("SLACK_WEBHOOK_URL", raising=False)
     monkeypatch.setattr(
         "sys.argv",
         [
@@ -34,6 +44,34 @@ def test_token_delivery_failure_is_fatal_when_required(monkeypatch, tmp_path):
     monkeypatch.setattr(notify, "_post_json", lambda *args, **kwargs: next(responses))
 
     assert notify.main() == 1
+
+
+def test_daily_notifier_joins_supplied_channel_and_enforces_delivery(monkeypatch):
+    notify = _load_daily_notify_module()
+    monkeypatch.setenv("SLACK_BOT_TOKEN", "test")
+    monkeypatch.delenv("SLACK_WEBHOOK_URL", raising=False)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "notify_bosgame_run_slack.py",
+            "--channel", "C123",
+            "--suite", "DeepEval Nightly",
+            "--event", "up",
+            "--require-delivery",
+        ],
+    )
+    calls = []
+
+    def fake_api_post(method, token, payload):
+        calls.append((method, payload))
+        if method == "conversations.join":
+            return {"ok": False, "error": "missing_scope"}
+        return {"ok": False, "error": "not_in_channel"}
+
+    monkeypatch.setattr(notify, "_api_post", fake_api_post)
+
+    assert notify.main() == 1
+    assert calls[0] == ("conversations.join", {"channel": "C123"})
 
 
 def test_standard_workflow_collects_all_twelve_deepeval_cases():
