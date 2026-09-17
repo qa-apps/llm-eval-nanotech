@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DeepEval UI - run 2</title>
+  <title>DeepEval UI - run 112</title>
   <style>
     :root {
       color-scheme: light;
@@ -39,38 +39,30 @@
     .metric-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .metric-head span { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); }
     .empty { background:#fff; border:1px solid var(--border); border-radius:8px; padding:18px; color:var(--muted); }
+    .nav { margin-bottom:10px; font-size:14px; } .nav a { color:var(--accent); text-decoration:none; font-weight:700; }
     @media (max-width:760px) {
       .summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .case { grid-template-columns:1fr; }
       .case-status { min-height:38px; }
     }
-      .nav { margin-bottom:10px; font-size:14px; } .nav a { color:var(--accent); text-decoration:none; font-weight:700; }
   </style>
 </head>
 <body>
   <header>
     <nav class="nav"><a href="../../index.html">&larr; All DeepEval runs</a></nav>
     <div class="kicker">NanoTech Hub LLM Evaluation</div>
-    <h1>DeepEval Run 2 - <span class="good">PASSED</span></h1>
-    <div class="meta"><span>Built 2026-08-13 07:00 UTC</span><span>Source: /home/runner/work/PW_nanotech/PW_nanotech/.deepeval/.latest_run_full.json</span><a href="https://github.com/qa-apps/PW_nanotech/actions/runs/31675744565">GitHub Actions run</a></div>
+    <h1>DeepEval Run 112 - <span class="good">NO RESULTS</span></h1>
+    <div class="meta"><span>Built 2026-09-17 16:55 UTC</span><span>Source: missing .deepeval result</span><a href="https://github.com/qa-apps/PW_nanotech/actions/runs/35249231852">GitHub Actions run</a></div>
   </header>
   <main>
     <section class="summary">
-      <div class="tile"><span>Tests</span><strong>1</strong></div>
-      <div class="tile"><span>Passed</span><strong class="good">1</strong></div>
+      <div class="tile"><span>Tests</span><strong>0</strong></div>
+      <div class="tile"><span>Passed</span><strong class="good">0</strong></div>
       <div class="tile"><span>Failed</span><strong class="bad">0</strong></div>
-      <div class="tile"><span>Metrics</span><strong>1</strong></div>
+      <div class="tile"><span>Metrics</span><strong>0</strong></div>
       <div class="tile"><span>Duration</span><strong>n/a</strong></div>
     </section>
-    <article class="case pass"><div class="case-status">PASS</div><div class="case-body"><h3>test_01_answer_relevancy[chromium]</h3><div class="io"><span>Input</span><p>What services does NanoTech Hub offer?</p></div><div class="io"><span>Output</span><p>NanoTech Hub provides a range of innovative services, including:
-
-1. Nanotechnology Research and Development: We conduct cutting-edge research in nanotechnology, developing novel materials and techniques for various industries.
-2. Nanofabrication and Manufacturing: Our state-of-the-art facilities enable us to fabricate and manufacture nanoscale materials and devices with high precision and quality.
-3. Nanomaterials Synthesis and Characterization: We synthesize and characterize various nanomaterials, including nanoparticles, nanotubes, and nanowires, for applications in energy, medicine, and electronics.
-4. Nanoscale Device Development: Our team designs and develops nanoscale devices, such as sensors, actuators, and energy harvesting systems, for use in various industries.
-5. Consultancy and Expertise: We provide expert advice and consultancy services to companies and organizations seeking to integrate nanotechnology into their products and processes.
-
-Please note that exact pricing and specific details of our services depend on the requirements of your project.</p></div><div class="metrics"><div class="metric pass"><div class="metric-head"><strong>Answer Relevancy</strong><span>0.9166666666666666 / 0.7</span></div><div class="metric-model">nanotech-orchestrator</div><p>The score is 0.92 because the response mainly lists NanoTech Hub&#x27;s services, but it also includes irrelevant discussion of pricing and detail policies, preventing a perfect score.</p></div></div></div></article>
+    <div class="empty">No DeepEval test cases were found in this run.</div>
   </main>
 </body>
 </html>
