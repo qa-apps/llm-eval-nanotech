@@ -140,10 +140,14 @@ def main() -> int:
             _post_json("https://slack.com/api/conversations.join", {"channel": args.channel}, token=token)
         except Exception:
             pass
-        resp = _post_json("https://slack.com/api/chat.postMessage", payload, token=token)
+        try:
+            resp = _post_json("https://slack.com/api/chat.postMessage", payload, token=token)
+        except Exception as exc:
+            print(f"Slack post failed: {exc}", file=sys.stderr)
+            return 1 if args.require_delivery else 0
         if not resp.get("ok"):
             print(f"Slack post failed: {resp.get('error')}", file=sys.stderr)
-            return 1
+            return 1 if args.require_delivery else 0
         print(f"Message posted to {args.channel}")
         return 0
 
