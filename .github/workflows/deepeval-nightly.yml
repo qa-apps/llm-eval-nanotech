@@ -46,9 +46,6 @@ jobs:
       LOCAL_LLM_API_KEY: ${{ secrets.LOCAL_LLM_API_KEY }}
       LOCAL_LLM_MODEL: ${{ github.event_name == 'schedule' && 'scheduled/gpt-oss:120b' || 'gpt-oss:120b' }}
       LOCAL_LLM_PRIORITY_MAX_WAIT_SEC: ${{ github.event_name == 'schedule' && '21600' || '0' }}
-      # LOCAL_LLM_API_KEY is not pinned here so a gateway key exported by the
-      # bosgame runner service (EnvironmentFile llm-gateway.env) is used;
-      # utils/nanotech_judge.py and the checks fall back to "ollama".
       LOCAL_LLM_TIMEOUT_SEC: "300"
       NANOTECH_API_TIMEOUT_SEC: "120"
       NANOTECH_UI_CHAT_TIMEOUT_MS: "120000"
@@ -86,7 +83,8 @@ jobs:
         run: |
           model_ready=false
           # Since 2026-09-14 the gateway answers 401 without a key; send the runner-provided one.
-          KEY="${LOCAL_LLM_API_KEY:-ollama}"
+          : "${LOCAL_LLM_API_KEY:?LOCAL_LLM_API_KEY secret is required}"
+          KEY="${LOCAL_LLM_API_KEY}"
           # The catalog lists the upstream id; the scheduled alias may be routed without being listed.
           if models=$(curl --connect-timeout 5 --max-time 15 --fail --silent --show-error -H "Authorization: Bearer $KEY" "$OLLAMA_BASE_URL/v1/models") && \
              python3 -c 'import json,sys; wanted=[w for w in sys.argv[1:] if w]; ids=[m.get("id") for m in json.load(sys.stdin).get("data", [])]; ok=any(w in ids for w in wanted); ok or print(f"::warning::None of {wanted} is listed by the model catalog; available: {ids}"); raise SystemExit(0 if ok else 1)' "$LOCAL_LLM_MODEL" "gpt-oss:120b" <<<"$models"; then

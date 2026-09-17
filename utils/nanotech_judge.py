@@ -22,7 +22,9 @@ class NanotechJudge(DeepEvalBaseLLM):
     def __init__(self, base_url: Optional[str] = None, timeout: Optional[float] = None):
         self.base_url = (base_url or os.getenv('LOCAL_LLM_BASE_URL', 'http://127.0.0.1:11434/v1')).rstrip('/')
         self.model = os.getenv('LOCAL_LLM_MODEL', 'gpt-oss:120b')
-        self.api_key = os.getenv('LOCAL_LLM_API_KEY', 'ollama')
+        self.api_key = os.getenv('LOCAL_LLM_API_KEY', '')
+        if not self.api_key:
+            raise RuntimeError('LOCAL_LLM_API_KEY is required for the local LLM gateway')
         self.timeout = timeout or float(os.getenv('LOCAL_LLM_TIMEOUT_SEC', '300'))
         self._last_model: Optional[str] = None
         self.max_attempts = int(os.getenv('NANOTECH_LLM_MAX_ATTEMPTS', '3'))

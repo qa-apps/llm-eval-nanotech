@@ -40,6 +40,7 @@ def test_standard_workflow_collects_all_twelve_deepeval_cases():
     workflow = (ROOT / ".github/workflows/deepeval-nightly.yml").read_text(encoding="utf-8")
     assert "LOCAL_LLM_API_KEY: ${{ secrets.LOCAL_LLM_API_KEY }}" in workflow
     assert "LOCAL_LLM_API_KEY: ollama" not in workflow
+    assert "LOCAL_LLM_API_KEY:-ollama" not in workflow
     assert "tests/llmEval/test_chatbot_deepeval.py \\" in workflow
     assert "tests/llmEval/test_chatbot_judge_ui.py \\" in workflow
     assert "EXPECTED_CASES: ${{ steps.eval_day.outputs.scope == 'smoke' && '1' || '12' }}" in workflow
