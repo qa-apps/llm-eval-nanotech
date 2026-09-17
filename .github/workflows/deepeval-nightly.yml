@@ -223,7 +223,7 @@ jobs:
 
       - name: Build DeepEval Pages UI
         id: build_pages
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
         env:
           RUN_NUMBER: ${{ github.run_number }}
           RUN_URL: ${{ env.RUN_URL }}
@@ -231,7 +231,7 @@ jobs:
 
       - name: Upload Pages site for isolated publisher
         id: upload_pages
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success' && steps.build_pages.outcome == 'success'
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: deepeval-pages-${{ github.run_id }}
@@ -241,7 +241,7 @@ jobs:
 
       - name: Notify Slack
         id: notify_slack
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
         env:
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
@@ -256,7 +256,7 @@ jobs:
 
       - name: Nightly Bosgame — post results
         id: notify_daily
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
         run: |
           python3 .github/scripts/notify_bosgame_run_slack.py \
             --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
@@ -317,7 +317,7 @@ jobs:
     steps:
       - name: Download generated Pages site
         id: download_pages
-        continue-on-error: true
+        if: needs.deepeval.outputs.completion_ready == 'true'
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
         with:
           name: deepeval-pages-${{ github.run_id }}
@@ -325,7 +325,7 @@ jobs:
 
       - name: Publish Pages site
         id: publish_pages
-        if: steps.download_pages.outcome == 'success'
+        if: needs.deepeval.outputs.completion_ready == 'true' && steps.download_pages.outcome == 'success'
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -337,6 +337,12 @@ jobs:
           commit_message: "deepeval site: run #${{ github.run_number }}"
           user_name: "github-actions[bot]"
           user_email: "github-actions[bot]@users.noreply.github.com"
+
+      - name: Enforce Pages publication
+        if: always() && needs.deepeval.outputs.completion_ready == 'true' && (steps.download_pages.outcome != 'success' || steps.publish_pages.outcome != 'success')
+        run: |
+          echo "::error::DeepEval Pages publication failed."
+          exit 1
 
       - name: Save daily completion marker
         if: >-
