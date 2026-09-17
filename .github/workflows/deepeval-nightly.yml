@@ -43,6 +43,7 @@ jobs:
       NANOTECH_LLM_REQUEST_PAUSE: "0.5"
       OLLAMA_BASE_URL: http://127.0.0.1:11434
       LOCAL_LLM_BASE_URL: http://127.0.0.1:11434/v1
+      LOCAL_LLM_API_KEY: ${{ secrets.LOCAL_LLM_API_KEY }}
       LOCAL_LLM_MODEL: ${{ github.event_name == 'schedule' && 'scheduled/gpt-oss:120b' || 'gpt-oss:120b' }}
       LOCAL_LLM_PRIORITY_MAX_WAIT_SEC: ${{ github.event_name == 'schedule' && '21600' || '0' }}
       # LOCAL_LLM_API_KEY is not pinned here so a gateway key exported by the
