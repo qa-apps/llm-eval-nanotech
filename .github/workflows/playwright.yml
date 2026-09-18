@@ -7,8 +7,9 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'
-    - cron: '0 3 * * *'
+    # 3:05 AM America/New_York. The first step selects the matching DST slot.
+    - cron: '5 7 * * *'
+    - cron: '5 8 * * *'
 
 permissions:
   contents: read
@@ -24,7 +25,7 @@ jobs:
       NANOTECH_TEST_PASSWORD: ${{ secrets.NANOTECH_TEST_PASSWORD }}
 
     steps:
-      - name: Decide whether this scheduled run matches 10 PM New York time
+      - name: Decide whether this scheduled run matches 3:05 AM New York time
         id: run_window
         shell: bash
         run: |
@@ -34,11 +35,10 @@ jobs:
           fi
 
           # GitHub often starts scheduled runs hours late, so decide by which
-          # cron fired, not by the current hour: 10 PM New York is 02:00 UTC
-          # during EDT and 03:00 UTC during EST.
+          # cron fired, not by the current hour.
           ny_tz="$(TZ=America/New_York date +%Z)"
           case "${{ github.event.schedule }}|$ny_tz" in
-            "0 2 * * *|EDT"|"0 3 * * *|EST") should_run=true ;;
+            "5 7 * * *|EDT"|"5 8 * * *|EST") should_run=true ;;
             *) should_run=false ;;
           esac
           echo "Cron '${{ github.event.schedule }}' with New York on $ny_tz -> should_run=$should_run"
@@ -46,7 +46,7 @@ jobs:
 
       - name: Skip duplicate schedule slot
         if: steps.run_window.outputs.should_run != 'true'
-        run: echo "Skipping this cron slot (the other DST slot for 10 PM America/New_York)."
+        run: echo "Skipping this cron slot (the other DST slot for 3:05 AM America/New_York)."
 
       - name: Checkout repository
         if: steps.run_window.outputs.should_run == 'true'

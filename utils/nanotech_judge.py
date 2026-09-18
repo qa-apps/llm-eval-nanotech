@@ -23,6 +23,7 @@ class NanotechJudge(DeepEvalBaseLLM):
         self.base_url = (base_url or os.getenv('LOCAL_LLM_BASE_URL', 'http://127.0.0.1:11434/v1')).rstrip('/')
         self.model = os.getenv('LOCAL_LLM_MODEL', 'gpt-oss:120b')
         self.api_key = os.getenv('LOCAL_LLM_API_KEY', '')
+        self.job_id = os.getenv('LOCAL_LLM_JOB_ID', os.getenv('GITHUB_RUN_ID', 'nanotech-deepeval'))
         self.timeout = timeout or float(os.getenv('LOCAL_LLM_TIMEOUT_SEC', '300'))
         self._last_model: Optional[str] = None
         self.max_attempts = int(os.getenv('NANOTECH_LLM_MAX_ATTEMPTS', '3'))
@@ -49,7 +50,11 @@ class NanotechJudge(DeepEvalBaseLLM):
             if reply:
                 self._last_model = cached.get('model', self.model)
                 return reply
-        headers = {'Authorization': f'Bearer {self.api_key}'}
+        headers = {
+            'Authorization': f'Bearer {self.api_key}',
+            'X-LLM-Job-ID': self.job_id,
+            'X-LLM-Model': self.model,
+        }
         with httpx.Client(base_url=self.base_url, timeout=self.timeout, headers=headers) as client:
             attempt = 0
             priority_deadline = time.monotonic() + self.priority_max_wait

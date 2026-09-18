@@ -88,6 +88,11 @@ def test_standard_workflow_collects_all_twelve_deepeval_cases():
     assert "os.getenv('LOCAL_LLM_API_KEY', '')" in judge
     assert "LOCAL_LLM_API_KEY is required for the local LLM gateway" in judge
     assert "os.getenv('LOCAL_LLM_API_KEY', 'ollama')" not in judge
+    assert "'X-LLM-Job-ID': self.job_id" in judge
+    assert "'X-LLM-Model': self.model" in judge
+    assert "http://127.0.0.1:11445/v1" in workflow
+    assert "http://127.0.0.1:11434/v1" not in workflow
+    assert "if: always()\n        run:" in workflow
 
     api_suite = (ROOT / "tests/llmEval/test_chatbot_deepeval.py").read_text(encoding="utf-8")
     browser_suite = (ROOT / "tests/llmEval/test_chatbot_judge_ui.py").read_text(encoding="utf-8")
