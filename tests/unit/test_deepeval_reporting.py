@@ -94,3 +94,12 @@ def test_standard_workflow_collects_all_twelve_deepeval_cases():
     assert api_suite.count("assert_test(") == 6
     assert browser_suite.count("assert_test(") == 1
     assert browser_suite.count("_assert_reply_quality(") == 7
+
+
+def test_manual_workflow_waits_for_local_model_and_cannot_succeed_without_report():
+    workflow = (ROOT / ".github/workflows/deepeval-nightly.yml").read_text(encoding="utf-8")
+
+    assert "github.event_name == 'schedule' && '21600' || '3600'" in workflow
+    assert "retrying warm-up in 10s" in workflow
+    assert "Reject manual run without a real DeepEval report" in workflow
+    assert "github.event_name == 'workflow_dispatch' && steps.local_llm.outputs.run != 'true'" in workflow
