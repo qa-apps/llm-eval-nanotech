@@ -1,0 +1,13 @@
+{
+  "run_number": "120",
+  "source": "/var/lib/gh-runner/nanotech/_work/PW_nanotech/PW_nanotech/.deepeval/.latest_run_full.json",
+  "built_at": "2026-09-18 15:10 UTC",
+  "run_url": "https://github.com/qa-apps/PW_nanotech/actions/runs/35359715480",
+  "total": 12,
+  "passed": 12,
+  "failed": 0,
+  "metric_total": 12,
+  "metric_passed": 12,
+  "metric_failed": 0,
+  "run_duration": 0.0
+}
