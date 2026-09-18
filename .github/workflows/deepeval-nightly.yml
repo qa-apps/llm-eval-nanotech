@@ -65,8 +65,10 @@ jobs:
       NANOTECH_LLM_MAX_ATTEMPTS: "3"
       NANOTECH_LLM_RETRY_BASE_DELAY: "2.0"
       NANOTECH_LLM_REQUEST_PAUSE: "0.5"
-      OLLAMA_BASE_URL: ${{ github.event_name == 'schedule' && 'http://127.0.0.1:11445' || 'http://127.0.0.1:11434' }}
-      LOCAL_LLM_BASE_URL: ${{ github.event_name == 'schedule' && 'http://127.0.0.1:11445/v1' || 'http://127.0.0.1:11434/v1' }}
+      # Every run uses the lifecycle gateway so an unloaded GPT-OSS model is
+      # queued and loaded without replacing active interactive work.
+      OLLAMA_BASE_URL: http://127.0.0.1:11445
+      LOCAL_LLM_BASE_URL: http://127.0.0.1:11445/v1
       LOCAL_LLM_API_KEY: ${{ secrets.LOCAL_LLM_API_KEY }}
       LOCAL_LLM_MODEL: gpt-oss:120b
       LOCAL_LLM_JOB_ID: ${{ github.run_id }}
@@ -363,7 +365,7 @@ jobs:
           fi
 
       - name: Release background model lease
-        if: always() && github.event_name == 'schedule'
+        if: always()
         run: |
           curl -fsS -X POST \
             -H "X-LLM-Job-ID: $GITHUB_RUN_ID" \
