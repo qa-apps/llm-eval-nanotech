@@ -1,4 +1,4 @@
-# PW_nanotech
+# llm-eval-nanotech
 
 LLM evaluation and end-to-end quality suite for the
 **[nanotech.icu](https://nanotech.icu)** AI chatbot, plus the production sources
