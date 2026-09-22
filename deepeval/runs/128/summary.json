@@ -1,0 +1,13 @@
+{
+  "run_number": "128",
+  "source": "/var/lib/gh-runner/nanotech/_work/llm-eval-nanotech/llm-eval-nanotech/.deepeval/.latest_run_full.json",
+  "built_at": "2026-09-22 15:45 UTC",
+  "run_url": "https://github.com/qa-apps/llm-eval-nanotech/actions/runs/35748013196",
+  "total": 12,
+  "passed": 11,
+  "failed": 1,
+  "metric_total": 12,
+  "metric_passed": 11,
+  "metric_failed": 1,
+  "run_duration": 0.0
+}
