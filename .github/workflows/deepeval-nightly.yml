@@ -12,13 +12,13 @@ on:
           - standard
         default: standard
   schedule:
-    # 7:15 AM America/New_York. Both UTC slots cover daylight-saving time;
+    # 5:15 AM America/New_York. Both UTC slots cover daylight-saving time;
     # the gate below starts only the matching slot.
-    - cron: "15 11 * * *"
-    - cron: "15 12 * * *"
+    - cron: "15 9 * * *"
+    - cron: "15 10 * * *"
 
 concurrency:
-  group: deepeval-nightly-${{ github.ref }}
+  group: deepeval-cloud-${{ github.ref }}
   cancel-in-progress: false
 
 permissions: read-all
@@ -39,7 +39,7 @@ jobs:
           fi
           ny_tz="$(TZ=America/New_York date +%Z)"
           case "${{ github.event.schedule }}|$ny_tz" in
-            "15 11 * * *|EDT"|"15 12 * * *|EST") should_run=true ;;
+            "15 9 * * *|EDT"|"15 10 * * *|EST") should_run=true ;;
             *) should_run=false ;;
           esac
           echo "should_run=$should_run" >> "$GITHUB_OUTPUT"
@@ -47,8 +47,8 @@ jobs:
   deepeval:
     needs: schedule-gate
     if: needs.schedule-gate.outputs.should_run == 'true'
-    runs-on: [self-hosted, Linux, X64, bosgame]
-    timeout-minutes: 480
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
     outputs:
       eval_date: ${{ steps.eval_day.outputs.date }}
       completion_ready: ${{ steps.completion_gate.outputs.ready }}
@@ -65,17 +65,16 @@ jobs:
       NANOTECH_LLM_MAX_ATTEMPTS: "3"
       NANOTECH_LLM_RETRY_BASE_DELAY: "2.0"
       NANOTECH_LLM_REQUEST_PAUSE: "0.5"
-      # Every run uses the lifecycle gateway so an unloaded GPT-OSS model is
-      # queued and loaded without replacing active interactive work.
-      OLLAMA_BASE_URL: http://127.0.0.1:11445
-      LOCAL_LLM_BASE_URL: http://127.0.0.1:11445/v1
-      LOCAL_LLM_API_KEY: ${{ secrets.LOCAL_LLM_API_KEY }}
-      LOCAL_LLM_MODEL: gpt-oss:120b
-      LOCAL_LLM_JOB_ID: ${{ github.run_id }}
-      # A manual verification run must wait for the shared local model instead
-      # of succeeding without executing any DeepEval cases.
-      LOCAL_LLM_PRIORITY_MAX_WAIT_SEC: ${{ github.event_name == 'schedule' && '21600' || '3600' }}
-      LOCAL_LLM_TIMEOUT_SEC: "300"
+      CLOUD_EVAL_BASE_URL: http://127.0.0.1:18765/v1
+      CLOUD_EVAL_ROUTE_MODE: go-primary
+      CLOUD_EVAL_API_KEY: cloud-eval
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+      SAMBANOVA_API_KEY: ${{ secrets.SAMBANOVA_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      LOCAL_LLM_TIMEOUT_SEC: "180"
       NANOTECH_API_TIMEOUT_SEC: "120"
       NANOTECH_UI_CHAT_TIMEOUT_MS: "120000"
 
@@ -103,73 +102,34 @@ jobs:
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: .ci-markers/deepeval.done
-          key: bosgame-deepeval-${{ steps.eval_day.outputs.date }}
+          key: cloud-deepeval-v1-${{ steps.eval_day.outputs.date }}
 
-      - name: Check and warm local GPT-OSS
-        id: local_llm
+      - name: Start cloud judge and verify a real completion
+        id: cloud_llm
         if: steps.daily_marker.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          model_ready=false
-          # Since 2026-09-14 the gateway answers 401 without a key; send the runner-provided one.
-          : "${LOCAL_LLM_API_KEY:?LOCAL_LLM_API_KEY secret is required}"
-          KEY="${LOCAL_LLM_API_KEY}"
-          deadline=$((SECONDS + LOCAL_LLM_PRIORITY_MAX_WAIT_SEC))
-          while true; do
-            # The catalog lists the upstream id; the scheduled alias may be routed without being listed.
-            if models=$(curl --connect-timeout 5 --max-time 15 --fail --silent --show-error \
-                -H "Authorization: Bearer $KEY" \
-                -H "X-LLM-Job-ID: $GITHUB_RUN_ID" \
-                -H "X-LLM-Model: $LOCAL_LLM_MODEL" \
-                "$OLLAMA_BASE_URL/v1/models") && \
-               python3 -c 'import json,sys; wanted=[w for w in sys.argv[1:] if w]; ids=[m.get("id") for m in json.load(sys.stdin).get("data", [])]; ok=any(w in ids for w in wanted); ok or print(f"::warning::None of {wanted} is listed by the model catalog; available: {ids}"); raise SystemExit(0 if ok else 1)' "$LOCAL_LLM_MODEL" "gpt-oss:120b" <<<"$models"; then
-              response=$(curl --connect-timeout 5 --max-time 300 --fail --silent --show-error \
-                "$LOCAL_LLM_BASE_URL/chat/completions" \
-                -H "Authorization: Bearer $KEY" \
-                -H "Content-Type: application/json" \
-                -H "X-LLM-Job-ID: $GITHUB_RUN_ID" \
-                -H "X-LLM-Model: $LOCAL_LLM_MODEL" \
-                -d "{\"model\":\"$LOCAL_LLM_MODEL\",\"messages\":[{\"role\":\"user\",\"content\":\"Return JSON: {\\\"ready\\\": true}\"}],\"temperature\":0,\"max_tokens\":256,\"response_format\":{\"type\":\"json_object\"},\"stream\":false}") || true
-              if python3 -c 'import json,sys; data=json.load(sys.stdin); content=data["choices"][0]["message"].get("content", "").strip(); raise SystemExit(0 if content else 1)' <<<"$response"; then
-                model_ready=true
-                break
-              fi
-            fi
-            if [ "$SECONDS" -ge "$deadline" ]; then
-              break
-            fi
-            echo "Local model gateway is busy or transitioning; retrying warm-up in 10s."
-            sleep 10
+          set -euo pipefail
+          nohup python3 -u .github/scripts/cloud_gateway.py > cloud-gateway.log 2>&1 &
+          for attempt in {1..20}; do
+            if curl -fsS http://127.0.0.1:18765/health >/dev/null; then break; fi
+            sleep 1
           done
-          if [ "$model_ready" = true ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Local model unavailable or not producing output (reason above); the next hourly schedule will retry."
-          fi
+          curl -fsS --max-time 120 http://127.0.0.1:18765/v1/chat/completions \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"cloud-eval","messages":[{"role":"user","content":"Reply OK"}],"max_tokens":64}' \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["choices"][0]["message"]["content"]'
+          echo "run=true" >> "$GITHUB_OUTPUT"
 
-      - name: Nightly Bosgame — report unavailable
-        if: steps.daily_marker.outputs.cache-hit != 'true' && steps.local_llm.outputs.run != 'true'
+      - name: Report cloud judge failure
+        if: failure() && steps.cloud_llm.outcome == 'failure'
         run: |
-          python3 .github/scripts/notify_bosgame_run_slack.py \
-            --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
-            --suite "DeepEval Nightly" --event down
-
-      - name: Reject manual run without a real DeepEval report
-        if: github.event_name == 'workflow_dispatch' && steps.local_llm.outputs.run != 'true'
-        run: |
-          echo "::error::Manual DeepEval run did not acquire the local GPT-OSS model."
-          exit 1
-
-      - name: Nightly Bosgame — report available
-        if: steps.local_llm.outputs.run == 'true'
-        run: |
-          python3 .github/scripts/notify_bosgame_run_slack.py \
-            --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
-            --suite "DeepEval Nightly" --event up
+          python3 .github/scripts/notify_eval_status_slack.py \
+            --channel "$SLACK_DEEPEVAL_CHANNEL_ID" \
+            --suite "DeepEval Nightly" --detail "Cloud judge failed its live completion check; tests did not run."
 
       - name: Checkout existing gh-pages site
-        if: steps.local_llm.outputs.run == 'true'
+        if: steps.cloud_llm.outputs.run == 'true'
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: gh-pages
@@ -177,35 +137,33 @@ jobs:
         continue-on-error: true
 
       - name: Setup Python
-        if: steps.local_llm.outputs.run == 'true'
+        if: steps.cloud_llm.outputs.run == 'true'
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11"
 
       - name: Install dependencies
-        if: steps.local_llm.outputs.run == 'true'
+        if: steps.cloud_llm.outputs.run == 'true'
         run: pip install -r requirements.txt
 
       - name: Install Playwright browser
         id: install_browser
-        if: steps.local_llm.outputs.run == 'true'
-        # The hardened self-hosted runner blocks sudo. Its system libraries are
-        # preinstalled, so download the browser bundle without --with-deps.
-        run: python -m playwright install chromium
+        if: steps.cloud_llm.outputs.run == 'true'
+        run: python -m playwright install --with-deps chromium
 
       - name: Record DeepEval run start
-        if: steps.local_llm.outputs.run == 'true'
+        if: steps.cloud_llm.outputs.run == 'true'
         run: python3 -c 'import os,time; from pathlib import Path; Path(os.environ["RUNNER_TEMP"]).joinpath("deepeval-start-ns").write_text(str(time.time_ns()))'
 
       - name: Run DeepEval smoke sequentially
-        if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'smoke'
+        if: steps.cloud_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'smoke'
         id: smoke
         continue-on-error: true
         run: |
           RUN_LLM_EVALS=1 python -m pytest tests/llmEval/test_chatbot_deepeval.py::TestChatbotQuality::test_01_chat_returns_a_meaningful_response --tb=short
 
       - name: Run DeepEval API and browser 12-test suite sequentially
-        if: steps.local_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
+        if: steps.cloud_llm.outputs.run == 'true' && steps.eval_day.outputs.scope == 'standard'
         id: standard
         continue-on-error: true
         run: |
@@ -216,7 +174,7 @@ jobs:
 
       - name: Validate complete DeepEval report
         id: report_contract
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.cloud_llm.outputs.run == 'true'
         env:
           EXPECTED_CASES: ${{ steps.eval_day.outputs.scope == 'smoke' && '1' || '12' }}
           SCOPE: ${{ steps.eval_day.outputs.scope }}
@@ -266,18 +224,21 @@ jobs:
 
       - name: Upload DeepEval raw results
         id: upload_results
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.cloud_llm.outputs.run == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: deepeval-results-${{ github.run_number }}
-          path: .deepeval/
+          path: |
+            .deepeval/
+            cloud-eval-ledger.jsonl
+            cloud-gateway.log
           if-no-files-found: ignore
           retention-days: 14
           include-hidden-files: true
 
       - name: Upload browser failure evidence
         id: upload_browser_evidence
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.cloud_llm.outputs.run == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: llm-browser-failures-${{ github.run_number }}
@@ -287,7 +248,7 @@ jobs:
 
       - name: Build DeepEval Pages UI
         id: build_pages
-        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
+        if: always() && steps.cloud_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
         env:
           RUN_NUMBER: ${{ github.run_number }}
           RUN_URL: ${{ env.RUN_URL }}
@@ -295,7 +256,7 @@ jobs:
 
       - name: Upload Pages site for isolated publisher
         id: upload_pages
-        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success' && steps.build_pages.outcome == 'success'
+        if: always() && steps.cloud_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success' && steps.build_pages.outcome == 'success'
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: deepeval-pages-${{ github.run_id }}
@@ -305,7 +266,7 @@ jobs:
 
       - name: Notify Slack
         id: notify_slack
-        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
+        if: always() && steps.cloud_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
         env:
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
@@ -318,19 +279,9 @@ jobs:
             --dashboard-url "$DEEPEVAL_DASHBOARD_URL" \
             --require-delivery
 
-      - name: Nightly Bosgame — post results
-        id: notify_daily
-        if: always() && steps.local_llm.outputs.run == 'true' && steps.report_contract.outcome == 'success'
-        run: |
-          python3 .github/scripts/notify_bosgame_run_slack.py \
-            --channel "${{ secrets.SLACK_NIGHTLY_BOSGAME_CHANNEL_ID }}" \
-            --suite "DeepEval Nightly" --event result \
-            --format deepeval --results .deepeval \
-            --require-delivery
-
       - name: Evaluate daily completion gate
         id: completion_gate
-        if: always() && steps.local_llm.outputs.run == 'true'
+        if: always() && steps.cloud_llm.outputs.run == 'true'
         env:
           BROWSER_INSTALL: ${{ steps.install_browser.outcome }}
           REPORT_CONTRACT: ${{ steps.report_contract.outcome }}
@@ -339,13 +290,12 @@ jobs:
           PAGES_BUILD: ${{ steps.build_pages.outcome }}
           PAGES_UPLOAD: ${{ steps.upload_pages.outcome }}
           DEEPEVAL_SLACK: ${{ steps.notify_slack.outcome }}
-          DAILY_SLACK: ${{ steps.notify_daily.outcome }}
           SCOPE: ${{ steps.eval_day.outputs.scope }}
           SMOKE_OUTCOME: ${{ steps.smoke.outcome }}
           STANDARD_OUTCOME: ${{ steps.standard.outcome }}
         run: |
           ready=true
-          for outcome in "$BROWSER_INSTALL" "$REPORT_CONTRACT" "$RESULTS_UPLOAD" "$BROWSER_EVIDENCE_UPLOAD" "$PAGES_BUILD" "$PAGES_UPLOAD" "$DEEPEVAL_SLACK" "$DAILY_SLACK"; do
+          for outcome in "$BROWSER_INSTALL" "$REPORT_CONTRACT" "$RESULTS_UPLOAD" "$BROWSER_EVIDENCE_UPLOAD" "$PAGES_BUILD" "$PAGES_UPLOAD" "$DEEPEVAL_SLACK"; do
             [ "$outcome" = "success" ] || ready=false
           done
           if [ "$SCOPE" = "smoke" ]; then
@@ -357,19 +307,13 @@ jobs:
           [ "$ready" = "true" ] || echo "::warning::Daily marker withheld because report, artifact, Pages input, or Slack delivery was incomplete."
 
       - name: Fail if DeepEval failed
-        if: steps.local_llm.outputs.run == 'true'
+        if: steps.cloud_llm.outputs.run == 'true'
         run: |
           if [ "${{ steps.smoke.outcome }}" = "failure" ] || \
              [ "${{ steps.standard.outcome }}" = "failure" ]; then
             exit 1
           fi
 
-      - name: Release background model lease
-        if: always()
-        run: |
-          curl -fsS -X POST \
-            -H "X-LLM-Job-ID: $GITHUB_RUN_ID" \
-            http://127.0.0.1:11443/release/background || true
 
   publish-deepeval-pages:
     name: Publish Pages from GitHub-hosted runner
@@ -426,4 +370,4 @@ jobs:
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: .ci-markers/deepeval.done
-          key: bosgame-deepeval-${{ needs.deepeval.outputs.eval_date }}
+          key: cloud-deepeval-v1-${{ needs.deepeval.outputs.eval_date }}
