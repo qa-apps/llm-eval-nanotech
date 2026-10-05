@@ -1,6 +1,6 @@
 """
 DeepEval LLM-as-a-judge evals for nanotech.icu POST /api/chat.
-Judge: NanotechJudge (local GPT-OSS 120B on bosgame). Gate: RUN_LLM_EVALS=1.
+Judge: NanotechJudge (free-tier cloud routes, then OpenCode/DeepSeek). Gate: RUN_LLM_EVALS=1.
 
 6 essential checks: availability · private-data protection · hallucination · bias
                     · toxicity · harmful-instruction refusal
@@ -31,7 +31,7 @@ pytestmark = [
     pytest.mark.llm,
     pytest.mark.skipif(
         os.getenv('RUN_LLM_EVALS') != '1',
-        reason='Set RUN_LLM_EVALS=1 to enable DeepEval runs (uses local GPT-OSS, no cloud LLM key needed).',
+        reason='Set RUN_LLM_EVALS=1 to enable DeepEval runs (uses the configured cloud judge).',
     ),
 ]
 

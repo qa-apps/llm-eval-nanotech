@@ -1,6 +1,4 @@
-"""
-DeepEval judge backed by GPT-OSS 120B on the local bosgame Ollama server.
-"""
+"""DeepEval judge backed by free-tier cloud providers with paid fallback."""
 
 import os
 import re
@@ -17,12 +15,12 @@ _JUDGE_CACHE = RequestCache('nanotech_judge_cache')
 
 
 class NanotechJudge(DeepEvalBaseLLM):
-    """LLM-as-a-judge powered by a local OpenAI-compatible Ollama endpoint."""
+    """LLM-as-a-judge powered by the OpenAI-compatible cloud gateway."""
 
     def __init__(self, base_url: Optional[str] = None, timeout: Optional[float] = None):
-        self.base_url = (base_url or os.getenv('LOCAL_LLM_BASE_URL', 'http://127.0.0.1:11434/v1')).rstrip('/')
-        self.model = os.getenv('LOCAL_LLM_MODEL', 'gpt-oss:120b')
-        self.api_key = os.getenv('LOCAL_LLM_API_KEY', '')
+        self.base_url = (base_url or os.getenv('CLOUD_EVAL_BASE_URL', 'http://127.0.0.1:18765/v1')).rstrip('/')
+        self.model = 'cloud-eval'
+        self.api_key = os.getenv('CLOUD_EVAL_API_KEY', 'cloud-eval')
         self.job_id = os.getenv('LOCAL_LLM_JOB_ID', os.getenv('GITHUB_RUN_ID', 'nanotech-deepeval'))
         self.timeout = timeout or float(os.getenv('LOCAL_LLM_TIMEOUT_SEC', '300'))
         self._last_model: Optional[str] = None
@@ -42,7 +40,7 @@ class NanotechJudge(DeepEvalBaseLLM):
 
     def _call_chat(self, prompt: str) -> Optional[str]:
         if not self.api_key:
-            raise RuntimeError('LOCAL_LLM_API_KEY is required for the local LLM gateway')
+            raise RuntimeError('CLOUD_EVAL_API_KEY is required for the cloud judge gateway')
         cache_payload = {'base_url': self.base_url, 'model': self.model, 'prompt': prompt}
         cached = _JUDGE_CACHE.get(cache_payload)
         if isinstance(cached, dict):
@@ -102,7 +100,7 @@ class NanotechJudge(DeepEvalBaseLLM):
         result = self._call_chat(prompt)
         if result:
             return result
-        raise RuntimeError(f'Local judge failed for prompt: {prompt[:120]}...')
+        raise RuntimeError(f'Cloud judge failed for prompt: {prompt[:120]}...')
 
     async def a_generate(self, prompt: str, **kwargs) -> str:
         return self.generate(prompt, **kwargs)
