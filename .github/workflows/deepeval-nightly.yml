@@ -228,7 +228,10 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: deepeval-results-${{ github.run_number }}
-          path: .deepeval/
+          path: |
+            .deepeval/
+            cloud-eval-ledger.jsonl
+            cloud-gateway.log
           if-no-files-found: ignore
           retention-days: 14
           include-hidden-files: true
