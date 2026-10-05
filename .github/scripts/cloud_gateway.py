@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Small OpenAI-compatible gateway for scheduled evaluations.
 
-Only configured free-tier routes are tried before the OpenCode fallback. The
-gateway never substitutes an empty answer for a provider failure.
+The QA route mode uses OpenCode Go first and direct DeepSeek second. The
+default route mode retains the original free-tier ladder for other callers.
+The gateway never substitutes an empty answer for a provider failure.
 """
 from __future__ import annotations
 
@@ -10,6 +11,7 @@ import json
 import os
 import sys
 import time
+import traceback
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -38,6 +40,8 @@ ROUTE_DISABLED_UNTIL = {}
 
 def configured_routes(vision=False):
     source = VISION_ROUTES if vision else ROUTES
+    if not vision and os.environ.get("CLOUD_EVAL_ROUTE_MODE") == "go-primary":
+        source = tuple(route for route in ROUTES if route[0] in ("opencode-go", "deepseek"))
     return [(name, os.environ[key], url, model) for name, key, url, model in source if os.environ.get(key)]
 
 
@@ -151,7 +155,8 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 result = chat(payload)
             self.reply(200, result)
-        except (ValueError, RuntimeError) as exc:
+        except Exception as exc:
+            traceback.print_exc(file=sys.stderr)
             self.reply(502, {"error": {"message": str(exc), "type": "provider_error"}})
 
 
