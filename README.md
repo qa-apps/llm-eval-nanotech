@@ -24,18 +24,18 @@ assistant declines unsafe requests rather than merely avoiding bad words.
 through the real browser UI, so the verdict covers what a user actually
 receives, not just what the API returns.
 
-### The judge runs locally
+### The judge
 
 `utils/nanotech_judge.py` implements `NanotechJudge`, a `DeepEvalBaseLLM` backed
-by **GPT-OSS 120B on a self-hosted Ollama gateway** rather than a commercial
-API. No OpenAI key is required. The judge adds the things a nightly evaluation
-needs in order to be trustworthy and repeatable:
+by **DeepSeek (`deepseek-v4-pro`)** through its OpenAI-compatible API, the same
+cloud judge `llm-eval-alexpavsky` uses. It needs `DEEPSEEK_API_KEY`; no OpenAI
+key is required. The judge adds the things a nightly evaluation needs in order
+to be trustworthy and repeatable:
 
-- On-disk request caching, so an unchanged prompt is not re-judged and re-billed
-  in wall-clock time.
-- Bounded retries with backoff on 429/502/503/504.
-- A priority wait, so a scheduled run queues for the shared model instead of
-  silently passing with zero cases executed.
+- On-disk request caching, so an unchanged prompt is not re-judged and re-billed.
+- Bounded retries with backoff on 429/500/502/503/504.
+- A preflight (`.github/scripts/check_cloud_judge.py`) that fails the run
+  loudly when the key or API is unavailable, instead of passing with zero cases.
 - `<think>` blocks stripped from reasoning-model output before scoring.
 
 Evaluations are opt-in: they run only when `RUN_LLM_EVALS=1`, so an ordinary
@@ -88,7 +88,7 @@ screenshots, and video are retained on failure.
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
 | `playwright.yml` | push, pull request, 3:05 AM New York | Runs the Playwright E2E and API suites on a hosted runner. |
-| `deepeval-nightly.yml` | 7:15 AM New York, manual | Runs the full DeepEval suite on a self-hosted GPU runner, validates the report contract, publishes a dashboard to GitHub Pages, and reports to Slack. |
+| `deepeval-nightly.yml` | 7:15 AM New York, manual | Runs the full DeepEval suite on a GitHub-hosted runner with the DeepSeek judge, validates the report contract, publishes a dashboard to GitHub Pages, and reports to Slack. |
 
 Both scheduled workflows use two UTC cron entries with a New York time gate, so
 the schedule stays correct across daylight-saving changes.
