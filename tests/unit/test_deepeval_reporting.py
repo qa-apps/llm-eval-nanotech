@@ -74,6 +74,19 @@ def test_daily_notifier_joins_supplied_channel_and_enforces_delivery(monkeypatch
     assert calls[0] == ("conversations.join", {"channel": "C123"})
 
 
+def test_builder_writes_repo_root_index():
+    import importlib.util
+
+    path = ROOT / "scripts/build_deepeval_site.py"
+    spec = importlib.util.spec_from_file_location("build_deepeval_site", path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader
+    spec.loader.exec_module(module)
+    html = module._root_index_html()
+    assert "./deepeval/" in html
+    assert "./playwright/" in html
+
+
 def test_standard_workflow_collects_all_twelve_deepeval_cases():
     workflow = (ROOT / ".github/workflows/deepeval-nightly.yml").read_text(encoding="utf-8")
     assert "DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}" in workflow
