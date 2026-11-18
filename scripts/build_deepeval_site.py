@@ -290,8 +290,34 @@ def main() -> int:
     runs_root = OUT / "deepeval" / "runs"
     patched = _backfill_nav(runs_root)
     (OUT / "deepeval" / "index.html").write_text(_index_html(runs_root), encoding="utf-8")
+    (OUT / "index.html").write_text(_root_index_html(), encoding="utf-8")
     print(f"Built DeepEval UI at {run_dir} (runs list updated, {patched} older pages got the back link)")
     return 0
+
+
+def _root_index_html() -> str:
+    """GitHub Pages 404s on the repo root because only /deepeval and /playwright exist."""
+    return """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>NanoTech Hub eval dashboards</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font: 16px/1.5 -apple-system, BlinkMacSystemFont, sans-serif; margin: 40px auto; max-width: 640px; color: #111; }
+    a { color: #0b57d0; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>NanoTech Hub eval dashboards</h1>
+  <ul>
+    <li><a href="./deepeval/">DeepEval runs</a></li>
+    <li><a href="./playwright/">Playwright reports</a></li>
+  </ul>
+</body>
+</html>
+"""
 
 
 if __name__ == "__main__":
